@@ -31,15 +31,28 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		99857E602D8D7FC300CB00FE /* fibroapoio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = fibroapoio.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		99857E702D8D7FC400CB00FE /* fibroapoioTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = fibroapoioTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		99857E7A2D8D7FC400CB00FE /* fibroapoioUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = fibroapoioUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		99857E602D8D7FC300CB00FE /* FibroApoio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FibroApoio.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		99857E702D8D7FC400CB00FE /* FibroApoioTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FibroApoioTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		99857E7A2D8D7FC400CB00FE /* FibroApoioUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FibroApoioUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		99857ED92D8D9DFC00CB00FE /* Exceptions for "FibroApoio" folder in "FibroApoio" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 99857E5F2D8D7FC300CB00FE /* FibroApoio */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		99857E622D8D7FC300CB00FE /* Fibroapoio */ = {
+		99857E622D8D7FC300CB00FE /* FibroApoio */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Fibroapoio;
+			exceptions = (
+				99857ED92D8D9DFC00CB00FE /* Exceptions for "FibroApoio" folder in "FibroApoio" target */,
+			);
+			path = FibroApoio;
 			sourceTree = "<group>";
 		};
 		99857E732D8D7FC400CB00FE /* FibroApoioTests */ = {
@@ -86,7 +99,7 @@
 		99857E572D8D7FC300CB00FE = {
 			isa = PBXGroup;
 			children = (
-				99857E622D8D7FC300CB00FE /* Fibroapoio */,
+				99857E622D8D7FC300CB00FE /* FibroApoio */,
 				99857E732D8D7FC400CB00FE /* FibroApoioTests */,
 				99857E7D2D8D7FC400CB00FE /* FibroApoioUITests */,
 				99857E612D8D7FC300CB00FE /* Products */,
@@ -96,9 +109,9 @@
 		99857E612D8D7FC300CB00FE /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				99857E602D8D7FC300CB00FE /* fibroapoio.app */,
-				99857E702D8D7FC400CB00FE /* fibroapoioTests.xctest */,
-				99857E7A2D8D7FC400CB00FE /* fibroapoioUITests.xctest */,
+				99857E602D8D7FC300CB00FE /* FibroApoio.app */,
+				99857E702D8D7FC400CB00FE /* FibroApoioTests.xctest */,
+				99857E7A2D8D7FC400CB00FE /* FibroApoioUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -106,9 +119,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		99857E5F2D8D7FC300CB00FE /* fibroapoio */ = {
+		99857E5F2D8D7FC300CB00FE /* FibroApoio */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 99857E842D8D7FC400CB00FE /* Build configuration list for PBXNativeTarget "fibroapoio" */;
+			buildConfigurationList = 99857E842D8D7FC400CB00FE /* Build configuration list for PBXNativeTarget "FibroApoio" */;
 			buildPhases = (
 				99857E5C2D8D7FC300CB00FE /* Sources */,
 				99857E5D2D8D7FC300CB00FE /* Frameworks */,
@@ -119,9 +132,9 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				99857E622D8D7FC300CB00FE /* Fibroapoio */,
+				99857E622D8D7FC300CB00FE /* FibroApoio */,
 			);
-			name = fibroapoio;
+			name = FibroApoio;
 			packageProductDependencies = (
 				99857ECD2D8D816F00CB00FE /* FirebaseAnalytics */,
 				99857ECF2D8D816F00CB00FE /* FirebaseAuth */,
@@ -129,12 +142,12 @@
 				99857ED32D8D816F00CB00FE /* FirebaseFirestore */,
 			);
 			productName = fibroapoio;
-			productReference = 99857E602D8D7FC300CB00FE /* fibroapoio.app */;
+			productReference = 99857E602D8D7FC300CB00FE /* FibroApoio.app */;
 			productType = "com.apple.product-type.application";
 		};
-		99857E6F2D8D7FC400CB00FE /* fibroapoioTests */ = {
+		99857E6F2D8D7FC400CB00FE /* FibroApoioTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 99857E872D8D7FC400CB00FE /* Build configuration list for PBXNativeTarget "fibroapoioTests" */;
+			buildConfigurationList = 99857E872D8D7FC400CB00FE /* Build configuration list for PBXNativeTarget "FibroApoioTests" */;
 			buildPhases = (
 				99857E6C2D8D7FC400CB00FE /* Sources */,
 				99857E6D2D8D7FC400CB00FE /* Frameworks */,
@@ -148,16 +161,16 @@
 			fileSystemSynchronizedGroups = (
 				99857E732D8D7FC400CB00FE /* FibroApoioTests */,
 			);
-			name = fibroapoioTests;
+			name = FibroApoioTests;
 			packageProductDependencies = (
 			);
 			productName = fibroapoioTests;
-			productReference = 99857E702D8D7FC400CB00FE /* fibroapoioTests.xctest */;
+			productReference = 99857E702D8D7FC400CB00FE /* FibroApoioTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		99857E792D8D7FC400CB00FE /* fibroapoioUITests */ = {
+		99857E792D8D7FC400CB00FE /* FibroApoioUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 99857E8A2D8D7FC400CB00FE /* Build configuration list for PBXNativeTarget "fibroapoioUITests" */;
+			buildConfigurationList = 99857E8A2D8D7FC400CB00FE /* Build configuration list for PBXNativeTarget "FibroApoioUITests" */;
 			buildPhases = (
 				99857E762D8D7FC400CB00FE /* Sources */,
 				99857E772D8D7FC400CB00FE /* Frameworks */,
@@ -171,11 +184,11 @@
 			fileSystemSynchronizedGroups = (
 				99857E7D2D8D7FC400CB00FE /* FibroApoioUITests */,
 			);
-			name = fibroapoioUITests;
+			name = FibroApoioUITests;
 			packageProductDependencies = (
 			);
 			productName = fibroapoioUITests;
-			productReference = 99857E7A2D8D7FC400CB00FE /* fibroapoioUITests.xctest */;
+			productReference = 99857E7A2D8D7FC400CB00FE /* FibroApoioUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -201,7 +214,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 99857E5B2D8D7FC300CB00FE /* Build configuration list for PBXProject "fibroapoio" */;
+			buildConfigurationList = 99857E5B2D8D7FC300CB00FE /* Build configuration list for PBXProject "FibroApoio" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -218,9 +231,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				99857E5F2D8D7FC300CB00FE /* fibroapoio */,
-				99857E6F2D8D7FC400CB00FE /* fibroapoioTests */,
-				99857E792D8D7FC400CB00FE /* fibroapoioUITests */,
+				99857E5F2D8D7FC300CB00FE /* FibroApoio */,
+				99857E6F2D8D7FC400CB00FE /* FibroApoioTests */,
+				99857E792D8D7FC400CB00FE /* FibroApoioUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -276,12 +289,12 @@
 /* Begin PBXTargetDependency section */
 		99857E722D8D7FC400CB00FE /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 99857E5F2D8D7FC300CB00FE /* fibroapoio */;
+			target = 99857E5F2D8D7FC300CB00FE /* FibroApoio */;
 			targetProxy = 99857E712D8D7FC400CB00FE /* PBXContainerItemProxy */;
 		};
 		99857E7C2D8D7FC400CB00FE /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 99857E5F2D8D7FC300CB00FE /* fibroapoio */;
+			target = 99857E5F2D8D7FC300CB00FE /* FibroApoio */;
 			targetProxy = 99857E7B2D8D7FC400CB00FE /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -339,6 +352,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = "$(SRCROOT)/FibroApoio/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -396,6 +410,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = "$(SRCROOT)/FibroApoio/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -422,8 +437,8 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -453,8 +468,8 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -483,7 +498,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/fibroapoio.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/fibroapoio";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FibroApoio.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FibroApoio";
 			};
 			name = Debug;
 		};
@@ -502,7 +517,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/fibroapoio.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/fibroapoio";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FibroApoio.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FibroApoio";
 			};
 			name = Release;
 		};
@@ -543,7 +558,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		99857E5B2D8D7FC300CB00FE /* Build configuration list for PBXProject "fibroapoio" */ = {
+		99857E5B2D8D7FC300CB00FE /* Build configuration list for PBXProject "FibroApoio" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				99857E822D8D7FC400CB00FE /* Debug */,
@@ -552,7 +567,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		99857E842D8D7FC400CB00FE /* Build configuration list for PBXNativeTarget "fibroapoio" */ = {
+		99857E842D8D7FC400CB00FE /* Build configuration list for PBXNativeTarget "FibroApoio" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				99857E852D8D7FC400CB00FE /* Debug */,
@@ -561,7 +576,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		99857E872D8D7FC400CB00FE /* Build configuration list for PBXNativeTarget "fibroapoioTests" */ = {
+		99857E872D8D7FC400CB00FE /* Build configuration list for PBXNativeTarget "FibroApoioTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				99857E882D8D7FC400CB00FE /* Debug */,
@@ -570,7 +585,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		99857E8A2D8D7FC400CB00FE /* Build configuration list for PBXNativeTarget "fibroapoioUITests" */ = {
+		99857E8A2D8D7FC400CB00FE /* Build configuration list for PBXNativeTarget "FibroApoioUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				99857E8B2D8D7FC400CB00FE /* Debug */,

@@ -7,7 +7,7 @@
 
 import XCTest
 
-final class fibroapoioUITestsLaunchTests: XCTestCase {
+final class FibroApoioUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true
