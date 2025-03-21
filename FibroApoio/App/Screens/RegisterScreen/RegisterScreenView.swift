@@ -16,8 +16,8 @@ struct RegisterScreenView: View {
 
     // MARK: - Properties
     
-    let privacyPolicyURL = URL(string: "https://www.example.com/privacy")!
-    let termsOfUseURL = URL(string: "https://www.example.com/terms")!
+    let privacyPolicyURL = URL(string: "https://docs.google.com/document/d/1Tdk9gpcK8xgYfK6HYzMvVKMZmxqn4Vh6mTZgT99PfrY/edit?tab=t.cja9ocxhtozz")!
+    let termsOfUseURL = URL(string: "https://docs.google.com/document/d/1Tdk9gpcK8xgYfK6HYzMvVKMZmxqn4Vh6mTZgT99PfrY/edit?tab=t.0")!
     
     // MARK: - Body
     
@@ -37,24 +37,29 @@ struct RegisterScreenView: View {
                     placeholder: "Nome Completo",
                     icon: "person",
                     iconPosition: .leading,
+                    maxLength: 70,
                     text: $viewModel.name
                 )
-                AtomTextInput(
+                AtomNumberInput(
                     placeholder: "Identificação",
                     icon: "person.text.rectangle",
                     iconPosition: .leading,
+                    maxLength: 9,
                     text: $viewModel.id
                 )
-                AtomTextInput(
+                AtomNumberInput(
                     placeholder: "Número de telemóvel",
                     icon: "phone",
                     iconPosition: .leading,
+                    mask: "XXX XXX XXX",
+                    maxLength: 11,
                     text: $viewModel.number
                 )
                 AtomTextInput(
                     placeholder: "Email",
                     icon: "envelope",
                     iconPosition: .leading,
+                    maxLength: 40,
                     text: $viewModel.email
                 )
                 AtomTextInput(
@@ -62,6 +67,7 @@ struct RegisterScreenView: View {
                     icon: "lock",
                     iconPosition: .leading,
                     password: true,
+                    maxLength: 20,
                     text: $viewModel.senha
                 )
                 

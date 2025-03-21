@@ -15,7 +15,7 @@ struct ContentView: View {
         Group {
             switch appCoordinator.currentPage {
             case "splash":
-                SplashScreenView()
+                SplashScreenView(viewModel: SplashScreenViewModel(appCoordinator: appCoordinator))
             case "welcome":
                 WelcomeScreenView(viewModel: WelcomeScreenViewModel(appCoordinator: appCoordinator))
             case "register":

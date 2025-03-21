@@ -6,7 +6,6 @@
 //
 
 import Combine
-// AppCoordinator.swift
 import SwiftUI
 
 class AppCoordinator: ObservableObject {
@@ -17,4 +16,5 @@ class AppCoordinator: ObservableObject {
     func goToPage(_ pageName: String) {
         currentPage = pageName
     }
+        
 }

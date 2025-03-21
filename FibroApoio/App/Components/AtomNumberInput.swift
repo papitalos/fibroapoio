@@ -35,7 +35,7 @@ struct AtomNumberInput: View {
         icon: String? = nil,
         iconPosition: Edge.Set = .leading,
         mask: String? = nil,
-        maxLength: Int? = nil, // Inicializando maxLength
+        maxLength: Int? = nil,
         borderRadius: CGFloat = 16,
         border: Bool = false,
         text: Binding<String>

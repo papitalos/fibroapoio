@@ -37,6 +37,10 @@ struct LoginScreenView: View {
              buttonTextColor: theme.colors.contentInversed)
             Spacer()
             VStack(spacing: theme.spacing.md) {
+                if selection == .right {
+                    Text("⚠️ Essa funcionalidade não foi implementada").foregroundColor(.red).body(theme)
+                    Text("É necessario ter funcionalidades premium no Firebase!").foregroundColor(.red).caption(theme)
+                }
                 // MARK: - AtomInputs
                 ZStack{
                     if selection == .left {
