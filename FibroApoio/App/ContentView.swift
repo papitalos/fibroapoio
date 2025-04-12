@@ -5,29 +5,19 @@
 //  Created by Italo Teofilo Filho on 15/03/2025.
 //
 
-// ContentView.swift
 import SwiftUI
 
 struct ContentView: View {
-    @EnvironmentObject var appCoordinator: AppCoordinator
-
+    @ObservedObject var appCoordinator: AppCoordinatorService
+    @Service var theme: Theme
+    let id = UUID()
+    
     var body: some View {
-        Group {
-            switch appCoordinator.currentPage {
-            case "splash":
-                SplashScreenView(viewModel: SplashScreenViewModel(appCoordinator: appCoordinator))
-            case "welcome":
-                WelcomeScreenView(viewModel: WelcomeScreenViewModel(appCoordinator: appCoordinator))
-            case "register":
-                RegisterScreenView(viewModel: RegisterScreenViewModel(appCoordinator: appCoordinator))
-            case "login":
-                LoginScreenView(viewModel: LoginScreenViewModel(appCoordinator: appCoordinator))
-            case "dashboard":
-                DashboardScreenView()
-            default:
-                Text("Pagina não encontrada")
-            }
-        }
-        .environmentObject(appCoordinator)
+        print("ContentView \(id) está sendo redesenhada.\nTela atual: \(appCoordinator.currentPage) \nCoordinator: \(ObjectIdentifier(appCoordinator))")
+        return appCoordinator.getView(for: appCoordinator.currentPage)
+    }
+    
+    init() {
+        _appCoordinator = ObservedObject(wrappedValue: DependencyContainer.shared.container.resolve(AppCoordinatorService.self)!)
     }
 }

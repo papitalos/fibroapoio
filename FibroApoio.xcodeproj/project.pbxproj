@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		99648B462D94238A009F0CCC /* Swinject in Frameworks */ = {isa = PBXBuildFile; productRef = 99648B452D94238A009F0CCC /* Swinject */; };
 		99857ECE2D8D816F00CB00FE /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 99857ECD2D8D816F00CB00FE /* FirebaseAnalytics */; };
 		99857ED02D8D816F00CB00FE /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 99857ECF2D8D816F00CB00FE /* FirebaseAuth */; };
 		99857ED22D8D816F00CB00FE /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 99857ED12D8D816F00CB00FE /* FirebaseCore */; };
@@ -73,6 +74,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				99857ECE2D8D816F00CB00FE /* FirebaseAnalytics in Frameworks */,
+				99648B462D94238A009F0CCC /* Swinject in Frameworks */,
 				99857ED42D8D816F00CB00FE /* FirebaseFirestore in Frameworks */,
 				99857ED22D8D816F00CB00FE /* FirebaseCore in Frameworks */,
 				99857ED02D8D816F00CB00FE /* FirebaseAuth in Frameworks */,
@@ -140,6 +142,7 @@
 				99857ECF2D8D816F00CB00FE /* FirebaseAuth */,
 				99857ED12D8D816F00CB00FE /* FirebaseCore */,
 				99857ED32D8D816F00CB00FE /* FirebaseFirestore */,
+				99648B452D94238A009F0CCC /* Swinject */,
 			);
 			productName = fibroapoio;
 			productReference = 99857E602D8D7FC300CB00FE /* FibroApoio.app */;
@@ -199,7 +202,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1620;
-				LastUpgradeCheck = 1620;
+				LastUpgradeCheck = 1630;
 				TargetAttributes = {
 					99857E5F2D8D7FC300CB00FE = {
 						CreatedOnToolsVersion = 16.2;
@@ -225,6 +228,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				99857ECC2D8D816F00CB00FE /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				99648B442D94238A009F0CCC /* XCRemoteSwiftPackageReference "Swinject" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 99857E612D8D7FC300CB00FE /* Products */;
@@ -335,6 +339,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = SGZW678AST;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -399,6 +404,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = SGZW678AST;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -429,7 +435,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"fibroapoio/Preview Content\"";
-				DEVELOPMENT_TEAM = SGZW678AST;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Fibro Apoio";
@@ -460,7 +465,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"fibroapoio/Preview Content\"";
-				DEVELOPMENT_TEAM = SGZW678AST;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Fibro Apoio";
@@ -489,7 +493,6 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = SGZW678AST;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
 				MARKETING_VERSION = 1.0;
@@ -508,7 +511,6 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = SGZW678AST;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
 				MARKETING_VERSION = 1.0;
@@ -526,7 +528,6 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = SGZW678AST;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = italoteofilo.fibroapoioUITests;
@@ -543,7 +544,6 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = SGZW678AST;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = italoteofilo.fibroapoioUITests;
@@ -597,6 +597,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		99648B442D94238A009F0CCC /* XCRemoteSwiftPackageReference "Swinject" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Swinject/Swinject.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.9.1;
+			};
+		};
 		99857ECC2D8D816F00CB00FE /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -608,6 +616,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		99648B452D94238A009F0CCC /* Swinject */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 99648B442D94238A009F0CCC /* XCRemoteSwiftPackageReference "Swinject" */;
+			productName = Swinject;
+		};
 		99857ECD2D8D816F00CB00FE /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 99857ECC2D8D816F00CB00FE /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;

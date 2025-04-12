@@ -1,5 +1,5 @@
 //
-//  ActionableTextView.swift
+//  AtomActionableTextView.swift
 //  FibroApoio
 //
 //  Created by Italo Teofilo Filho on 20/03/2025.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ActionableText: View {
+struct AtomActionableText: View {
 
     // MARK: - Properties
 
@@ -123,7 +123,7 @@ struct ActionableText: View {
 
 // MARK: - Preview
 
-struct ActionableTextView_Previews: PreviewProvider {
+struct AtomActionableTextView_Previews: PreviewProvider {
     static var previews: some View {
         let fullText = "Clique em Teste e Teste2 para executar ações."
         let actions: [String: () -> Void] = [
@@ -132,9 +132,9 @@ struct ActionableTextView_Previews: PreviewProvider {
         ]
 
         return VStack {
-            ActionableText(fullText: fullText, actions: actions, textStyle: .caption, textColor: .green, actionableTextColor: .red, underlined: false)
+            AtomActionableText(fullText: fullText, actions: actions, textStyle: .caption, textColor: .green, actionableTextColor: .red, underlined: false)
                 .padding()
-            ActionableText(fullText: fullText, actions: actions, textStyle: .body, textColor: .blue, actionableTextColor: .orange, underlined: true)
+            AtomActionableText(fullText: fullText, actions: actions, textStyle: .body, textColor: .blue, actionableTextColor: .orange, underlined: true)
                 .padding()
         }
     }

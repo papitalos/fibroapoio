@@ -1,5 +1,5 @@
 //
-//  LinkedTextView.swift
+//  AtomLinkedTextView.swift
 //  FibroApoio
 //
 //  Created by Italo Teofilo Filho on 20/03/2025.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct LinkedText: View {
+struct AtomLinkedText: View {
 
     // MARK: - Properties
 
@@ -100,7 +100,7 @@ struct LinkedText: View {
 
 // MARK: - Preview
 
-struct LinkedTextView_Previews: PreviewProvider {
+struct AtomLinkedTextView_Previews: PreviewProvider {
     static var previews: some View {
         let fullText = "Teste teste1 Teste2. Veja mais em Teste."
         let links: [String: URL] = [
@@ -109,9 +109,9 @@ struct LinkedTextView_Previews: PreviewProvider {
         ]
 
         return VStack {
-            LinkedText(fullText: fullText, links: links, textStyle: .caption, textColor: .green, linkColor: .red, underlined: false)
+            AtomLinkedText(fullText: fullText, links: links, textStyle: .caption, textColor: .green, linkColor: .red, underlined: false)
                 .padding()
-            LinkedText(fullText: fullText, links: links, textStyle: .body, textColor: .blue, linkColor: .orange, underlined: true)
+            AtomLinkedText(fullText: fullText, links: links, textStyle: .body, textColor: .blue, linkColor: .orange, underlined: true)
                 .padding()
         }
     }

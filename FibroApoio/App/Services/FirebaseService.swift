@@ -1,16 +1,19 @@
-// FirebaseService.swift
+//
+//  FirebaseService.swift
+//  FibroApoio
+//
+//  Created by Italo Teofilo Filho on 26/03/2025.
+//
+
 import FirebaseFirestore
-import FirebaseFirestoreSwift
 import Combine
 
 class FirebaseService {
-    static let shared = FirebaseService() // Singleton para acesso global
-
     private let db = Firestore.firestore()
 
-    private init() {}
+    init() {}
 
-    // MARK: - Funções de CRUD Básicas
+    // MARK: - Base CRUD
 
     /// Cria um novo documento na coleção especificada.
     func create<T: Encodable>(collection: String, documentId: String? = nil, data: T) -> AnyPublisher<Void, Error> {
@@ -80,7 +83,7 @@ class FirebaseService {
         }.eraseToAnyPublisher()
     }
 
-    // MARK: - Funções de CRUD Avançadas
+    // MARK: - Advanced CRUD
 
     /// Busca todos os documentos de uma coleção.
     func getAll<T: Decodable>(collection: String) -> AnyPublisher<[T], Error> {

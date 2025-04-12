@@ -1,22 +1,20 @@
 //
-//  CustomTabBarView.swift
+//  AtomTabBarView.swift
 //  FibroApoio
 //
 //  Created by Italo Teofilo Filho on 08/04/2025.
 //
-
-
 import SwiftUI
 
-struct CustomTabBarView: View {
+struct AtomTabBarView: View {
     @Binding var selectedTab: Int
-
+    
     let tabItems: [(icon: String, text: String)] = [
         (icon: "house", text: "Início"),
-        (icon: "magnifyingglass", text: "Buscar"),
-        (icon: "plus.app", text: "Adicionar"),
-        (icon: "bell", text: "Notificações"),
-        (icon: "person.crop.circle", text: "Perfil")
+        (icon: "trophy.fill", text: "Ranking"),
+        (icon: "plus.circle.fill", text: "Adicionar"),
+        (icon: "clipboard", text: "Atividade"),
+        (icon: "person", text: "Perfil")
     ]
 
     var body: some View {
@@ -38,7 +36,22 @@ struct CustomTabBarView: View {
             }
         }
         .padding(.horizontal)
-        .background(Color.white) // Definindo o background da TabBar
-        .shadow(radius: 3) // Adicionando uma sombra para destacar
+        .background(Color.white)
+        .shadow(color: .gray.opacity(0.05) ,radius: 3, x: 0, y: -8)
+    }
+}
+
+struct AtomTabBar_Previews: PreviewProvider {
+    static var previews: some View {
+        TabBarPreviewWrapper()
+    }
+}
+
+// View auxiliar para manter o estado
+struct TabBarPreviewWrapper: View {
+    @State var selectedTab: Int = 1
+
+    var body: some View {
+        AtomTabBarView(selectedTab: $selectedTab)
     }
 }

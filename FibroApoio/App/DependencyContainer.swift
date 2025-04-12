@@ -13,52 +13,65 @@ class DependencyContainer {
     let container = Container()
 
     private init() {
+        registerTheme()
         registerServices()
         registerViewModels()
         registerPages()
     }
+    
+    private func registerTheme() {
+        print("Registration of theme...")
+        
+        container.register(Theme.self) { _ in Theme() }.inObjectScope(.container)
+    }
 
     private func registerServices() {
-        container.register(FirebaseService.self) { _ in FirebaseService.shared }
+        print("Registration of services...")
+
+        container.register(FirebaseService.self) { _ in FirebaseService() }.inObjectScope(.container)
+        container.register(AppCoordinatorService.self) { _ in AppCoordinatorService() }.inObjectScope(.container)
+        container.register(LocalStorageService.self) { _ in LocalStorageService() }.inObjectScope(.container)
+        
         container.register(UserService.self) { resolver in
-            UserService(firebaseService: resolver.resolve(FirebaseService.self)!)
-        }
-        container.register(AuthenticationService.self) { _ in AuthenticationService() }
-        container.register(AppCoordinatorService.self) { _ in AppCoordinatorService() }
+            UserService(
+                firebaseService: resolver.resolve(FirebaseService.self)!,
+                localStorageService: resolver.resolve(LocalStorageService.self)!
+            )
+        }.inObjectScope(.container)
+        
+        container.register(AuthenticationService.self) { resolver in
+            AuthenticationService(
+                firebaseService: resolver.resolve(FirebaseService.self)!,
+                userService: resolver.resolve(UserService.self)!,
+                appCoordinatorService: resolver.resolve(AppCoordinatorService.self)!
+            )
+        }.inObjectScope(.container)
     }
 
     private func registerViewModels() {
-        container.register(SplashScreenViewModel.self) { resolver in
-            SplashScreenViewModel(
-                appCoordinator: resolver.resolve(AppCoordinatorService.self)!,
-                userService: resolver.resolve(UserService.self)!,
-                authenticationService: resolver.resolve(AuthenticationService.self)!
-            )
-        }
-    }
+        print("Registration of view models...")
 
-    private func registerPages() {
-        container.register(SplashScreenView.self) { _ in SplashScreenView() }
-        container.register(WelcomeScreenView.self) { _ in WelcomeScreenView() }
-        container.register(RegisterScreenView.self) { _ in RegisterScreenView() }
-        container.register(LoginScreenView.self) { _ in LoginScreenView() }
-        container.register(DashboardScreenView.self) { _ in DashboardScreenView() }
-    }
+            container.register(SplashScreenViewModel.self) { _ in SplashScreenViewModel() }
+            container.register(WelcomeScreenViewModel.self) { _ in WelcomeScreenViewModel() }
+            container.register(RegisterScreenViewModel.self) { _ in RegisterScreenViewModel() }
+            container.register(CompleteRegisterScreenViewModel.self) { _ in CompleteRegisterScreenViewModel() }
+            container.register(LoginScreenViewModel.self) { _ in LoginScreenViewModel() }
+            container.register(DashboardScreenViewModel.self) { _ in DashboardScreenViewModel() }
+            container.register(HomeScreenViewModel.self) { _ in HomeScreenViewModel() }
+            container.register(ProfileScreenViewModel.self) { _ in ProfileScreenViewModel() }
+       }
 
-    func resolvePage(pageName: String) -> AnyView? {
-        switch pageName {
-        case "splash":
-            return AnyView(container.resolve(SplashScreenView.self)!)
-        case "welcome":
-            return AnyView(container.resolve(WelcomeScreenView.self)!)
-        case "register":
-            return AnyView(container.resolve(RegisterScreenView.self)!)
-        case "login":
-            return AnyView(container.resolve(LoginScreenView.self)!)
-        case "dashboard":
-            return AnyView(container.resolve(DashboardScreenView.self)!)
-        default:
-            return nil
-        }
-    }
+       private func registerPages() {
+           print("Registration of pages...")
+
+           container.register(SplashScreenView.self) { _ in SplashScreenView() }
+           container.register(WelcomeScreenView.self) { _ in WelcomeScreenView() }
+           container.register(RegisterScreenView.self) { _ in RegisterScreenView() }
+           container.register(CompleteRegisterScreenView.self) { _ in CompleteRegisterScreenView() }
+           container.register(LoginScreenView.self) { _ in LoginScreenView() }
+           container.register(DashboardScreenView.self) { _ in DashboardScreenView() }
+           container.register(HomeScreenView.self) { _ in HomeScreenView() }
+           container.register(ProfileScreenView.self) { _ in ProfileScreenView() }
+       }
+
 }

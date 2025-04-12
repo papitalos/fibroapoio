@@ -1,6 +1,16 @@
+//
+//  LocalStorageService.swift
+//  FibroApoio
+//
+//  Created by Italo Teofilo Filho on 26/03/2025.
+//
+
+
 import Foundation
 
 class LocalStorageService {
+    
+    // MARK: - User
     private let userDefaults = UserDefaults.standard
     private let userKey = "currentUser"
 
@@ -9,7 +19,7 @@ class LocalStorageService {
             userDefaults.set(encodedData, forKey: userKey)
             print("Usuário salvo no LocalStorage")
         } else {
-            print("Erro ao salvar usuário no LocalStorage")
+            print("Erro ao salvar usuário não sensível no LocalStorage")
         }
     }
 
@@ -19,7 +29,7 @@ class LocalStorageService {
             print("Usuário carregado do LocalStorage")
             return user
         } else {
-            print("Usuário não encontrado no LocalStorage")
+            print("Usuário encontrado no LocalStorage")
             return nil
         }
     }
