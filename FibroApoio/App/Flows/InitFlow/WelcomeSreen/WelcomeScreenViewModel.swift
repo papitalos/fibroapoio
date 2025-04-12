@@ -8,11 +8,11 @@
 import SwiftUI
 
 class WelcomeScreenViewModel: ObservableObject {
-    @ObservedObject var appCoordinator: AppCoordinator
-
     @Published var title: String;
     @Published var description: String;
     @Published var image: String;
+
+    @Service var appCoordinator: AppCoordinatorService
 
     // Propriedades internas
     private var model: [WelcomeScreenModel] =  [
@@ -36,12 +36,11 @@ class WelcomeScreenViewModel: ObservableObject {
 
 
     // Inicialização
-    init(appCoordinator: AppCoordinator) {
+    init() {
         self.title = self.model[currentIndex].title
         self.description = self.model[currentIndex].description
         self.image = self.model[currentIndex].image
-        self.appCoordinator = appCoordinator
-
+        
         startInterval()
     }
     
@@ -49,7 +48,7 @@ class WelcomeScreenViewModel: ObservableObject {
     func next(){
         currentIndex += 1
         if(currentIndex >= model.count) {
-            appCoordinator.goToPage("register")
+            appCoordinator.goToPage(.register)
             return
         }
         

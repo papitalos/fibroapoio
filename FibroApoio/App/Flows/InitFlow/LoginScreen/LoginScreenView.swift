@@ -8,17 +8,15 @@
 import SwiftUI
 
 struct LoginScreenView: View {
+    // MARK: - Enviroment Objects
     @EnvironmentObject var theme: Theme
-    @EnvironmentObject var appCoordinator: AppCoordinator
-    
-    // MARK: - ViewModel
-    @ObservedObject var viewModel: LoginScreenViewModel
+    @StateObject var viewModel: LoginScreenViewModel
+    @Service var appCoordinator: AppCoordinatorService
     
     // MARK: - Properties
     @State var selection: AtomSelectButton.Selection = .left
     
     // MARK: - Body
-    
     var body: some View {
         VStack {
             VStack {
@@ -41,7 +39,6 @@ struct LoginScreenView: View {
                     Text("⚠️ Essa funcionalidade não foi implementada").foregroundColor(.red).body(theme)
                     Text("É necessario ter funcionalidades premium no Firebase!").foregroundColor(.red).caption(theme)
                 }
-                // MARK: - AtomInputs
                 ZStack{
                     if selection == .left {
                         AtomTextInput(
@@ -66,6 +63,13 @@ struct LoginScreenView: View {
                     iconPosition: .leading,
                     password: true,
                     text: $viewModel.senha
+                )
+                
+                let gmailLink = URL(string: "https://workspace.google.com/intl/pt-PT/gmail/")!
+                AtomLinkedText(
+                    fullText: "Esqueceu sua senha? Clique aqui",
+                    links: ["Clique aqui" : gmailLink],
+                    textStyle: .caption
                 )
             }
             .padding(theme.spacing.xlg)
@@ -96,10 +100,10 @@ struct LoginScreenView: View {
             
             HStack {
                 let actions: [String: () -> Void] = [
-                    "Registrar": { appCoordinator.goToPage("register") }
+                    "Registrar": { appCoordinator.goToPage(.register) }
                 ]
                 
-                ActionableTextView(fullText: "Não possui uma conta? Registrar", actions: actions, textStyle: .body)
+                AtomActionableText(fullText: "Não possui uma conta? Registrar", actions: actions, textStyle: .body)
                     .foregroundColor(.blue)
             }
             .padding(.horizontal, theme.spacing.xlg)
@@ -110,9 +114,10 @@ struct LoginScreenView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
-    //MARK: - Inicializador
-    init(viewModel: LoginScreenViewModel) {
-        self.viewModel = viewModel
+    //MARK: - Init
+    init(){
+        _viewModel = StateObject(wrappedValue:
+            DependencyContainer.shared.container.resolve(LoginScreenViewModel.self)!)
     }
 }
 
@@ -120,11 +125,9 @@ struct LoginScreenView: View {
 
 struct LoginScreenView_Previews: PreviewProvider {
     static var previews: some View {
-        let appCoordinator = AppCoordinator()
-        let viewModel = LoginScreenViewModel(appCoordinator: appCoordinator)
-        return LoginScreenView(viewModel: viewModel)
+        return LoginScreenView()
             .environmentObject(Theme())
-            .environmentObject(appCoordinator)
+            .environmentObject(DependencyContainer.shared.container.resolve(AppCoordinatorService.self)!)
     }
 
 }

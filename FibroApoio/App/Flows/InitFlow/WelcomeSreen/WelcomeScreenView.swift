@@ -9,10 +9,9 @@ import SwiftUI
 
 struct WelcomeScreenView: View {
     //MARK: - Properties
-    @ObservedObject var viewModel: WelcomeScreenViewModel
-
     @EnvironmentObject var theme: Theme
-    @EnvironmentObject var appCoordinator: AppCoordinator
+    @StateObject var viewModel: WelcomeScreenViewModel
+    @Service var appCoordinator: AppCoordinatorService
 
     //MARK: - Body
     var body: some View {
@@ -51,10 +50,10 @@ struct WelcomeScreenView: View {
             maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
 
     }
-
-    //MARK: - Inicializador
-    init(viewModel: WelcomeScreenViewModel) {
-        self.viewModel = viewModel
+    
+    
+    init() {
+        _viewModel = StateObject(wrappedValue: DependencyContainer.shared.container.resolve(WelcomeScreenViewModel.self)!)
     }
 }
 
@@ -62,10 +61,8 @@ struct WelcomeScreenView: View {
 //MARK: - Preview
 struct WelcomeScreenView_Previews: PreviewProvider {
     static var previews: some View {
-        let appCoordinator = AppCoordinator()
-        let viewModel = WelcomeScreenViewModel(appCoordinator: appCoordinator)
-        return WelcomeScreenView(viewModel: viewModel)
+        return WelcomeScreenView()
             .environmentObject(Theme())
-            .environmentObject(appCoordinator)
+            .environmentObject(DependencyContainer.shared.container.resolve(AppCoordinatorService.self)!)
     }
 }

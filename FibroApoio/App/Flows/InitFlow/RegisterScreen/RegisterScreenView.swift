@@ -8,12 +8,11 @@
 import SwiftUI
 
 struct RegisterScreenView: View {
+    // MARK: - Enviroment Objects
     @EnvironmentObject var theme: Theme
-    @EnvironmentObject var appCoordinator: AppCoordinator
+    @StateObject var viewModel: RegisterScreenViewModel
+    @Service var appCoordinator: AppCoordinatorService
     
-    // MARK: - ViewModel
-    @ObservedObject var viewModel: RegisterScreenViewModel
-
     // MARK: - Properties
     
     let privacyPolicyURL = URL(string: "https://docs.google.com/document/d/1Tdk9gpcK8xgYfK6HYzMvVKMZmxqn4Vh6mTZgT99PfrY/edit?tab=t.cja9ocxhtozz")!
@@ -45,7 +44,7 @@ struct RegisterScreenView: View {
                     icon: "person.text.rectangle",
                     iconPosition: .leading,
                     maxLength: 9,
-                    text: $viewModel.id
+                    text: $viewModel.identification
                 )
                 AtomNumberInput(
                     placeholder: "Número de telemóvel",
@@ -79,7 +78,7 @@ struct RegisterScreenView: View {
                     "Termos de uso": termsOfUseURL
                 ]
                 
-                LinkedTextView(fullText: fullText, links: links, textStyle: .caption)
+                AtomLinkedText(fullText: fullText, links: links, textStyle: .caption)
                     .foregroundColor(theme.colors.contentSecondary)
                     .multilineTextAlignment(.center)
                     .frame(width: 230)
@@ -115,10 +114,10 @@ struct RegisterScreenView: View {
                 
                 let enterText = "Entrar"
                 let actions: [String: () -> Void] = [
-                    enterText: { appCoordinator.goToPage("login") }
+                    enterText: { appCoordinator.goToPage(.login) }
                 ]
                 
-                ActionableTextView(fullText: enterText, actions: actions, textStyle: .body)
+                AtomActionableText(fullText: enterText, actions: actions, textStyle: .body)
                     .foregroundColor(.blue)
             }
             .padding(.horizontal, theme.spacing.xlg)
@@ -129,9 +128,9 @@ struct RegisterScreenView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
-    //MARK: - Inicializador
-    init(viewModel: RegisterScreenViewModel) {
-        self.viewModel = viewModel
+    init() {
+        _viewModel = StateObject(wrappedValue:
+            DependencyContainer.shared.container.resolve(RegisterScreenViewModel.self)!)
     }
 }
 
@@ -139,10 +138,8 @@ struct RegisterScreenView: View {
 
 struct RegisterScreenView_Previews: PreviewProvider {
     static var previews: some View {
-        let appCoordinator = AppCoordinator()
-        let viewModel = RegisterScreenViewModel(appCoordinator: appCoordinator)
-        return RegisterScreenView(viewModel: viewModel)
+        return RegisterScreenView()
             .environmentObject(Theme())
-            .environmentObject(appCoordinator)
+            .environmentObject(DependencyContainer.shared.container.resolve(AppCoordinatorService.self)!)
     }
 }
