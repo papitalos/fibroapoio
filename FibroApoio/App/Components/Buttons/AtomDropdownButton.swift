@@ -12,11 +12,12 @@ struct AtomDropdownButton<T: Hashable>: View {
     // Estilos
     var borderRadius: CGFloat = 16
     var border: Bool = false
-    var backgroundColor: Color = .gray.opacity(0.2)
-    var textColor: Color = .black
-    var placeholderColor: Color = .gray
     var mainIconName: String = "tag.circle"
     var dropdownIcon: String = "chevron.down"
+    
+    // Focus e Submit
+    @FocusState private var inFocus: Bool
+    var onSubmit: (() -> Void)? = nil
     
     //MARK: - Init
     init(
@@ -26,11 +27,9 @@ struct AtomDropdownButton<T: Hashable>: View {
         onSelect: @escaping (T) -> Void,
         borderRadius: CGFloat = 16,
         border: Bool = false,
-        backgroundColor: Color = .gray.opacity(0.2),
-        textColor: Color = .black,
-        placeholderColor: Color = .gray,
         mainIconName: String = "tag.circle",
-        dropdownIcon: String = "chevron.down"
+        dropdownIcon: String = "chevron.down",
+        onSubmit: (() -> Void)? = nil
     ) {
         self._selectedOption = selectedOption
         self.options = options
@@ -38,62 +37,118 @@ struct AtomDropdownButton<T: Hashable>: View {
         self.onSelect = onSelect
         self.borderRadius = borderRadius
         self.border = border
-        self.backgroundColor = backgroundColor
-        self.textColor = textColor
-        self.placeholderColor = placeholderColor
         self.mainIconName = mainIconName
         self.dropdownIcon = dropdownIcon
+        self.onSubmit = onSubmit
     }
     
     //MARK: - Body
     var body: some View {
         Menu {
-            ForEach(options.indices, id: \.self) { index in
-                let option = options[index]
-                Button {
-                    selectedOption = option.option
-                    onSelect(option.option)
-                } label: {
-                    HStack {
-                        Text(option.label)
-                        if let iconName = option.icon {
-                            Image(systemName: iconName)
-                        }
-                    }
-                }
-            }
+            optionsMenuContent()
         } label: {
-            HStack {
-                // Mostrar o label da opção selecionada ou o placeholder
-                if let selected = selectedOption,
-                   let selectedItem = options.first(where: { $0.option == selected }) {
-                    Text(selectedItem.label)
-                        .foregroundColor(textColor)
-                } else {
-                    Text(placeholder)
-                        .foregroundColor(placeholderColor)
-                }
-                
-                Spacer()
-                
-                Image(systemName: mainIconName)
-                    .foregroundColor(textColor)
-                Image(systemName: dropdownIcon)
-                    .foregroundColor(textColor)
-                    .font(.caption)
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(
-                RoundedRectangle(cornerRadius: borderRadius)
-                    .fill(backgroundColor)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: borderRadius)
-                            .stroke(border ? Color.gray : Color.clear, lineWidth: 1)
-                    )
-            )
+            dropdownButton()
         }
         .buttonStyle(PlainButtonStyle())
+        .focused($inFocus)
+        .onChange(of: selectedOption) {
+            callOnSubmit()
+        }
+    }
+    
+    //MARK: - Helper Methods
+    
+    // Método para criar o conteúdo do menu de opções
+    private func optionsMenuContent() -> some View {
+        ForEach(options.indices, id: \.self) { index in
+            menuOption(at: index)
+        }
+    }
+    
+    // Método para criar cada opção do menu
+    private func menuOption(at index: Int) -> some View {
+        let option = options[index]
+        return Button {
+            selectOption(option.option)
+        } label: {
+            optionLabel(option)
+        }
+        .padding(8)
+    }
+    
+    // Método para criar o label de cada opção
+    private func optionLabel(_ option: (option: T, label: String, icon: String?)) -> some View {
+        HStack {
+            Text(option.label)
+            if let iconName = option.icon {
+                Image(systemName: iconName)
+            }
+        }
+        .padding(8)
+    }
+    
+    // Método para selecionar uma opção
+    private func selectOption(_ option: T) {
+        selectedOption = option
+        onSelect(option)
+        inFocus = false
+    }
+    
+    // Método para criar o botão do dropdown
+    private func dropdownButton() -> some View {
+        HStack {
+            mainIcon()
+            selectionText()
+            Spacer()
+            chevronIcon()
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 16)
+        .background(buttonBackground())
+    }
+    
+    // Método para o ícone principal
+    private func mainIcon() -> some View {
+        Image(systemName: mainIconName)
+            .foregroundColor(.gray)
+    }
+    
+    // Método para o texto de seleção
+    private func selectionText() -> some View {
+        Group {
+            if let selected = selectedOption,
+               let selectedItem = options.first(where: { $0.option == selected }) {
+                Text(selectedItem.label)
+                    .foregroundColor(.blue)
+            } else {
+                Text(placeholder)
+                    .foregroundColor(.gray.opacity(0.5))
+            }
+        }
+    }
+    
+    // Método para o ícone de chevron
+    private func chevronIcon() -> some View {
+        Image(systemName: dropdownIcon)
+            .foregroundColor(.gray)
+            .font(.caption)
+    }
+    
+    // Método para o background do botão
+    private func buttonBackground() -> some View {
+        RoundedRectangle(cornerRadius: borderRadius)
+            .fill(Color.gray.opacity(0.1))
+            .overlay(
+                RoundedRectangle(cornerRadius: borderRadius)
+                    .stroke(border ? Color.gray : Color.clear, lineWidth: 1)
+            )
+    }
+    
+    // Método para chamar onSubmit
+    private func callOnSubmit() {
+        if let onSubmit = self.onSubmit {
+            onSubmit()
+        }
     }
 }
 
@@ -111,9 +166,11 @@ struct AtomDropdownButton_Preview: PreviewProvider {
         }
         
         @State var selectedStyle: GradientStyle?
+        @State var selectedColor: String?
         
         var body: some View {
             VStack(spacing: 20) {
+                // Exemplo com borda e foco
                 AtomDropdownButton(
                     selectedOption: $selectedStyle,
                     options: [
@@ -127,34 +184,37 @@ struct AtomDropdownButton_Preview: PreviewProvider {
                     },
                     borderRadius: 10,
                     border: true,
-                    backgroundColor: .blue.opacity(0.1),
-                    textColor: .blue,
-                    placeholderColor: .gray,
                     mainIconName: "paintbrush",
-                    dropdownIcon: "chevron.down"
+                    dropdownIcon: "chevron.down",
+                    onSubmit: {
+                        // Simular passagem para o próximo campo
+                        print("Passando para o próximo campo")
+                    }
                 )
                 .frame(width: 220, height: 40)
                 
-                Text("Estilo selecionado: $$selectedStyle?.rawValue ?? "Nenhum")")
+                Text("Estilo Selecionado: \(selectedStyle?.rawValue ?? "Nenhum")")
                     .padding()
                 
-                // Exemplo com outro tema
+                // Exemplo com onSubmit que atualiza outra propriedade
                 AtomDropdownButton(
-                    selectedOption: $selectedStyle,
+                    selectedOption: $selectedColor,
                     options: [
-                        (GradientStyle.linear, "Linear", "arrow.down.right.circle"),
-                        (GradientStyle.radial, "Radial", "arrow.up.and.down.circle"),
-                        (GradientStyle.angular, "Angular", "arrow.clockwise.circle")
+                        ("red", "Vermelho", "circle.fill"),
+                        ("blue", "Azul", "circle.fill"),
+                        ("green", "Verde", "circle.fill")
                     ],
-                    onSelect: { style in
-                        print("Selecionado: $$style.rawValue)")
+                    placeholder: "Escolha uma cor",
+                    onSelect: { color in
+                        print("Cor selecionada: $$color)")
                     },
                     borderRadius: 16,
                     border: false,
-                    backgroundColor: .black.opacity(0.8),
-                    textColor: .white,
-                    placeholderColor: .gray,
-                    mainIconName: "wand.and.stars"
+                    mainIconName: "paintpalette",
+                    onSubmit: {
+                        // Após selecionar cor, abrir automaticamente o dropdown de estilo
+                        selectedStyle = nil // Reset para demonstração
+                    }
                 )
                 .frame(width: 220, height: 40)
             }

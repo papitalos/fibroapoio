@@ -40,13 +40,12 @@ class RegisterScreenViewModel: ObservableObject {
             receiveCompletion: { completion in
                 switch completion {
                 case .finished:
-                    print("Registro concluído com sucesso")
                     self.clearFields()
                     self.appCoordinator.goToPage(.completeRegister)
                 case .failure(_):
                     self.errorMessage =
                         "Erro ao registrar"
-                    print("Erro ao registrar: \(String(describing: completion))")
+                    print("\n‼️ ERROR: Problemas ao registrar: \(String(describing: completion))")
                 }
             },
             receiveValue: { authResult in

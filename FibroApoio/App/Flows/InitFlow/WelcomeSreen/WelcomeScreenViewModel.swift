@@ -13,6 +13,7 @@ class WelcomeScreenViewModel: ObservableObject {
     @Published var image: String;
 
     @Service var appCoordinator: AppCoordinatorService
+    @Service var localStorage: LocalStorageService
 
     // Propriedades internas
     private var model: [WelcomeScreenModel] =  [
@@ -48,6 +49,7 @@ class WelcomeScreenViewModel: ObservableObject {
     func next(){
         currentIndex += 1
         if(currentIndex >= model.count) {
+            localStorage.saveWelcomeScreenState(hasSeen: true)
             appCoordinator.goToPage(.register)
             return
         }

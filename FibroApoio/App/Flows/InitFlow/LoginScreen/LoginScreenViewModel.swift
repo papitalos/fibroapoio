@@ -35,11 +35,10 @@ class LoginScreenViewModel: ObservableObject {
                 .sink(receiveCompletion: { completion in
                     switch completion {
                     case .finished:
-                        print("Login concluído com sucesso")
                         self.clearFields()
                     case .failure(_):
                         self.errorMessage = "Erro ao fazer login"
-                        print("Erro ao fazer login: $$String(describing: completion))")
+                        print("\n‼️ ERROR: \(String(describing: completion))")
                     }
                 }, receiveValue: { _ in })
                 .store(in: &cancellables)

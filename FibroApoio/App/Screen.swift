@@ -12,6 +12,7 @@ enum Screen: Hashable {
     case welcome
     case register
     case completeRegister
+    case successRegistration
     case login
     case dashboard
 }

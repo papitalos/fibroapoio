@@ -15,18 +15,32 @@ struct HomeScreenView: View {
     @Service var appCoordinator: AppCoordinatorService
     @Service var authenticationService: AuthenticationService
     
+    // MARK: - Computed Properties
+    private var greeting: String {
+       let hour = Calendar.current.component(.hour, from: Date())
+       
+       switch hour {
+       case 5..<12:
+           return "Bom dia,"
+       case 12..<18:
+           return "Boa tarde,"
+       default:
+           return "Boa noite,"
+       }
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             // Saudação e Energia
             HStack {
-                VStack(alignment: .leading, spacing: 5) {
-                    Text("Bom dia,")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                    Text("Italo Teófilo Filho")
-                        .font(.title)
-                        .fontWeight(.bold)
-                }
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text(greeting)
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                        Text(appCoordinator.user?.nome?.firstName ?? "Usuário")
+                            .font(.title)
+                            .fontWeight(.bold)
+                    }
                 Spacer()
                 HStack {
                     VStack {

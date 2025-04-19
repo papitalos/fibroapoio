@@ -19,7 +19,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             .LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         FirebaseApp.configure()
-
         return true
     }
 }
@@ -28,12 +27,13 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 struct FibroApoioApp: App {
     //Firebase
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    @Environment(\.scenePhase) private var scenePhase
 
     public let dependencyContainer = DependencyContainer.shared
     
     var body: some Scene {
         let theme: Theme = DependencyContainer.shared.container.resolve(Theme.self)!
-        
+         
         return WindowGroup {
             ContentView()
                 .injectServices(theme: theme)

@@ -13,7 +13,7 @@ struct ContentView: View {
     let id = UUID()
     
     var body: some View {
-        print("ContentView \(id) está sendo redesenhada.\nTela atual: \(appCoordinator.currentPage) \nCoordinator: \(ObjectIdentifier(appCoordinator))")
+        print("- 🔁 DESENHANDO -\n viewID:\(id)")
         return appCoordinator.getView(for: appCoordinator.currentPage)
     }
     

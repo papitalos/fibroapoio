@@ -14,7 +14,7 @@ struct SplashScreenView: View {
     @Service var appCoordinator: AppCoordinatorService
 
     //Estado para animações
-    @State var duration = 1.0
+    @State var duration = 2.0
     @State private var angle = 0.0
     @State private var opacity = 1.0
 

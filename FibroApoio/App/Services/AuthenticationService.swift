@@ -13,11 +13,13 @@ class AuthenticationService {
     private let firebaseService: FirebaseService
     private let userService: UserService
     private let appCoordinatorService: AppCoordinatorService
+    private let localStorageService: LocalStorageService
 
-    init(firebaseService: FirebaseService, userService: UserService, appCoordinatorService: AppCoordinatorService) {
+    init(firebaseService: FirebaseService, userService: UserService, appCoordinatorService: AppCoordinatorService, localStorageService: LocalStorageService) {
         self.firebaseService = firebaseService
         self.appCoordinatorService = appCoordinatorService
         self.userService = userService
+        self.localStorageService = localStorageService
     }
 
     // MARK: - Properties
@@ -37,8 +39,9 @@ class AuthenticationService {
                     promise(.success(authResult))
                     if let authResult = authResult {
                         let userId = authResult.user.uid
-                        print("User ID: \(userId)")
-                        let user = Usuario(
+
+                        let user: User = User(
+                            id: userId,
                             identification: identification,
                             id_rank: nil,
                             nome: nome,
@@ -62,23 +65,13 @@ class AuthenticationService {
         }.eraseToAnyPublisher()
     }
     
-    /// Verifica se o perfil do usuário está completo (altura, gênero, data de nascimento preenchidos).
-    func verifyProfileCompletion(userId: String) -> AnyPublisher<Bool, Error> {
-        print("Verificando se o perfil do usuário está completo...")
-        return userService.fetchUser(userId: userId)
-            .map { user in
-                guard let user = user else { return false }
-                return user.altura_cm != 0 && user.genero != nil && user.data_nascimento != nil
-            }
-            .eraseToAnyPublisher()
-    }
 
-    /// Completa o registro do usuário atualizando seus dados.
-    func completeRegister(userId: String, altura_cm: Int, genero: String, data_nascimento: Date, documentID: String) -> AnyPublisher<Void, Error> {
-        return userService.fetchUser(userId: userId)
+    /// Completa o perfil do usuário atualizando seus dados.
+    func completeRegister(altura_cm: Int, genero: String, data_nascimento: Date) -> AnyPublisher<Void, Error> {
+        return userService.fetchUser()
             .flatMap { user -> AnyPublisher<Void, Error> in
                 guard var user = user else {
-                    return Fail(error: NSError(domain: "AuthenticationService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Usuário não encontrado"])).eraseToAnyPublisher()
+                    return Fail(error: NSError(domain: "AuthenticationService", code: 0, userInfo: [NSLocalizedDescriptionKey: "‼️ ERROR: Usuário não encontrado no localStorage"])).eraseToAnyPublisher()
                 }
                 
                 // Atualiza os dados do usuário com os novos valores
@@ -87,7 +80,7 @@ class AuthenticationService {
                 user.data_nascimento = Timestamp(date: data_nascimento)
                 
                 // Atualiza o usuário no Firestore
-                return self.userService.updateUser(user: user, documentID: documentID)
+                return self.userService.updateUser(user: user)
             }
             .eraseToAnyPublisher()
     }
@@ -99,36 +92,52 @@ class AuthenticationService {
                 promise(.failure(NSError(domain: "AuthenticationService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Self is nil"])))
                 return
             }
+            self.resetAuthState()
             Auth.auth().signIn(withEmail: email, password: password) { (authResult, error) in
                 if let error = error {
+                    print("Erro de autenticação: \(error.localizedDescription)")
                     promise(.failure(error))
-                } else if let authResult = authResult {
-                    print("Login realizado com sucesso!")
-                    self.verifyProfileCompletion(userId: authResult.user.uid)
-                        .sink(receiveCompletion: { completion in
-                            switch completion {
-                            case .finished:
-                                break
-                            case .failure(let error):
-                                print("Erro ao verificar o perfil: \(String(describing: error))")
-                                promise(.failure(error))
-                                return
-                            }
-                        }, receiveValue: { isComplete in
-                            if isComplete {
-                                print("Perfil completo")
-                                self.appCoordinatorService.goToPage(.dashboard)
-                            } else {
-                                print("Perfil incompleto")
-                                self.appCoordinatorService.goToPage(.completeRegister)
-                            }
-                            promise(.success(()))
-                        })
-                        .store(in: &self.cancellables)
-                } else {
+                    return
+                }
+                
+                guard let authResult = authResult else {
                     let error = NSError(domain: "AuthenticationService", code: 0, userInfo: [NSLocalizedDescriptionKey: "AuthResult is nil"])
                     promise(.failure(error))
+                    return
                 }
+                
+                let userId = authResult.user.uid
+                print("\n- REALIZANDO LOGIN -\n RESULTADO: Bem Sucedido ✅\n ID: \(userId)")
+                
+                // Verificar se o usuário existe no Firestore
+                self.firebaseService.read(collection: "usuarios", documentId: userId)
+                    .sink(
+                        receiveCompletion: { completion in
+                            if case .failure(let error) = completion {
+                                print("‼️ ERROR: Falha ao buscar usuário: \(error.localizedDescription)")
+                                promise(.failure(error))
+                            }
+                        },
+                        receiveValue: { (user: User?) in
+                            if let user = user {
+                                // Usuário existe no Firestore
+                                print(" RESULTADO: Dados do usuário encontrados no Firestore ✅")
+                                self.localStorageService.saveUser(user: user)
+                                print("1 \(user)")
+                                self.appCoordinatorService.loadUser(user: user)
+                                // Verificar se o perfil está completo
+                                if user.altura_cm != 0 && user.genero != nil && user.data_nascimento != nil {
+                                    print("\n✅ Perfil completo")
+                                    self.appCoordinatorService.goToPage(.dashboard)
+                                } else {
+                                    print("\n⚠️ Perfil incompleto")
+                                    self.appCoordinatorService.goToPage(.completeRegister)
+                                }
+                                promise(.success(()))
+                            }
+                        }
+                    )
+                    .store(in: &self.cancellables)
             }
         }.eraseToAnyPublisher()
     }
@@ -141,11 +150,20 @@ class AuthenticationService {
                 try Auth.auth().signOut()
                 // Limpa o LocalStorage ao fazer logout
                 self.userService.clearLocalStorage()
-                print("Logout realizado com sucesso!")
+                print("\n- ⬅ LOGOUT SUCCESSFUL! -")
                 promise(.success(()))
             } catch {
                 promise(.failure(error))
             }
         }.eraseToAnyPublisher()
+    }
+    
+    func resetAuthState() {
+        do {
+            try Auth.auth().signOut()
+            self.userService.clearLocalStorage()
+        } catch {
+            print("‼️ ERROR: Problema ao resetar estado de autenticação:$$error)")
+        }
     }
 }

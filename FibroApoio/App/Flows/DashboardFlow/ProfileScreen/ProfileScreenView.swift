@@ -12,6 +12,7 @@ struct ProfileScreenView: View {
     @StateObject var viewModel: ProfileScreenViewModel
     @State var notificationsEnabled = true
     @Service var appCoordinator: AppCoordinatorService
+    @Service var localStorageService: LocalStorageService
     @Service var authenticationService: AuthenticationService
 
     var body: some View {
@@ -33,11 +34,16 @@ struct ProfileScreenView: View {
                         )
 
                     VStack(alignment: .leading, spacing: 5) {
-                        Text("Italo Teofilo Filho")
+                        Text(appCoordinator.user?.nome?.firstName ?? "Usuário")
                             .font(.headline)
-                        Text("desde 22 set, 2022")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
+                        if let createdAt = appCoordinator.user?.createdAt {
+                            let formattedDate = createdAt.toFormattedDateString()
+                            Text(formattedDate)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
+                        
                     }
                 }
                 Spacer()
@@ -61,23 +67,25 @@ struct ProfileScreenView: View {
                 .padding(.horizontal)
             }.padding(.horizontal)
 
-            HStack(spacing: 10) {
+            HStack(spacing: 4) {
                 VStack {
-                    Text("173cm").font(.headline)
+                    Text("173cm").subtitle(self.theme).bold()
+                        .foregroundColor(theme.colors.brandPrimary)
                     Text("Altura").font(.subheadline)
                         .foregroundColor(.gray)
 
                 }.padding(24).background(Color(.systemGray6)).cornerRadius(16)
                 Spacer()
                 VStack {
-                    Text("173cm").font(.headline)
+                    Text("173cm").subtitle(self.theme).bold()
+                        .foregroundColor(theme.colors.brandPrimary)
                     Text("Altura").font(.subheadline)
                         .foregroundColor(.gray)
 
                 }.padding(24).background(Color(.systemGray6)).cornerRadius(16)
                 Spacer()
                 VStack {
-                    Text("173cm").font(.headline)
+                    Text("173cm").subtitle(self.theme).bold() .foregroundColor(theme.colors.brandPrimary)
                     Text("Altura").font(.subheadline)
                         .foregroundColor(.gray)
 
@@ -95,7 +103,9 @@ struct ProfileScreenView: View {
                 actionableTextColor: .contentSecondary,
                 underlined: false
             ).padding(16).frame(maxWidth: .infinity, alignment: .trailing)
-        }.frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .padding(EdgeInsets(top: 32, leading: 16, bottom: 32, trailing: 16))
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     // MARK: - Methods
@@ -105,10 +115,12 @@ struct ProfileScreenView: View {
                 receiveCompletion: { completion in
                     switch completion {
                     case .finished:
-                        print("Logout realizado com sucesso.")
-                        appCoordinator.goToPage(.welcome)
-                    case .failure(let error):
-                        print("Erro ao realizar logout: \(error)")
+                        if(self.localStorageService.hasSeenWelcomeScreen()) {
+                            self.appCoordinator.goToPage(.login)
+                        }else{
+                            self.appCoordinator.goToPage(.welcome)
+                        }                    case .failure(let error):
+                        print("‼️ ERROR: Problema ao realizar logout \(error)")
                     }
                 },
                 receiveValue: { _ in
@@ -124,6 +136,7 @@ struct ProfileScreenView: View {
                     ProfileScreenViewModel.self
                 )!
         )
+        
     }
 }
 

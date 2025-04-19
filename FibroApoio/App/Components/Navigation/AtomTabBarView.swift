@@ -26,6 +26,7 @@ struct AtomTabBarView: View {
                     VStack {
                         Image(systemName: tabItems[index].icon)
                             .font(.title3)
+                            .frame(width: 32, height: 32, alignment: .center)
                         Text(tabItems[index].text)
                             .font(.caption)
                     }
@@ -35,7 +36,8 @@ struct AtomTabBarView: View {
                 }
             }
         }
-        .padding(.horizontal)
+        .padding(12)
+        .padding(.bottom, 8)
         .background(Color.white)
         .shadow(color: .gray.opacity(0.05) ,radius: 3, x: 0, y: -8)
     }

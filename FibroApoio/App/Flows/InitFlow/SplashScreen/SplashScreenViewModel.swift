@@ -15,39 +15,40 @@ class SplashScreenViewModel: ObservableObject {
     @Published var isLoading: Bool = true
 
     @Service var appCoordinator: AppCoordinatorService
+    @Service var localStorageService: LocalStorageService
     @Service var userService: UserService
-    @Service var authenticationService: AuthenticationService
 
     private var authStateHandle: AuthStateDidChangeListenerHandle?
     private var cancellables: Set<AnyCancellable> = []
 
-    init() {
-        print("WelcomeScreenViewModel AppCoordinator ID: \(ObjectIdentifier(appCoordinator))")
-        checkCurrentUser()
-    }
+    init() { checkCurrentUser() }
 
     func checkCurrentUser() {
         authStateHandle = Auth.auth().addStateDidChangeListener { [weak self] auth, user in
             guard let self = self else { return }
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                if let user = user {
+                if user != nil {
                     Task {
-                        await self.fetchUserData(userId: user.uid)
+                        await self.fetchUserData()
                     }
                 } else {
                     self.isLoading = false
-                    self.appCoordinator.goToPage(.welcome)
+                    if(self.localStorageService.hasSeenWelcomeScreen()) {
+                        self.appCoordinator.goToPage(.register)
+                    }else{
+                        self.appCoordinator.goToPage(.welcome)
+                    }
                 }
             }
         }
     }
     
     @MainActor
-        func fetchUserData(userId: String) async {
+        func fetchUserData() async {
             do {
-                let userData = try await withCheckedThrowingContinuation { continuation in
-                    userService.fetchUser(userId: userId)
+                _ = try await withCheckedThrowingContinuation {  (continuation: CheckedContinuation<User?, Error>)  in
+                    userService.fetchUser()
                         .sink(
                             receiveCompletion: { completion in
                                 switch completion {
@@ -58,19 +59,25 @@ class SplashScreenViewModel: ObservableObject {
                                 }
                             },
                             receiveValue: { user in
+                                print("2 \(String(describing: user))")
+
+                                self.appCoordinator.loadUser(user: user)
+
                                 continuation.resume(returning: user)
                             }
                         )
                         .store(in: &cancellables)
                 }
 
-                appCoordinator.currentUser = userData
                 isLoading = false
                 appCoordinator.goToPage(.dashboard)
             } catch {
-                print("Erro ao buscar dados do usuário: $$error)")
                 isLoading = false
-                appCoordinator.goToPage(.welcome)
+                if(localStorageService.hasSeenWelcomeScreen()) {
+                    appCoordinator.goToPage(.register)
+                }else{
+                    appCoordinator.goToPage(.welcome)
+                }
             }
         }
 

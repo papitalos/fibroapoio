@@ -1,3 +1,10 @@
+//
+//  SuccessRegistrationView.swift
+//  FibroApoio
+//
+//  Created by Italo Teofilo Filho on 18/04/2025.
+//
+
 import SwiftUI
 
 struct SuccessRegistrationView: View {
@@ -5,35 +12,14 @@ struct SuccessRegistrationView: View {
     @EnvironmentObject var theme: Theme
     @Service var appCoordinator: AppCoordinatorService
     
-    // MARK: - Properties
-    var userName: String // Nome do usuário passado como parâmetro
-    
     // MARK: - Body
     var body: some View {
         ZStack {
-            // Fundo com cor clara
-            theme.colors.background
-                .edgesIgnoringSafeArea(.all)
-            
             VStack(spacing: theme.spacing.xlg) {
-                // MARK: - Título no topo
-                Text("Success Registration")
-                    .font(.caption)
-                    .foregroundColor(theme.colors.contentSecondary)
-                    .padding(.top, theme.spacing.xlg)
-                
+                Image("lootie-6")
                 Spacer()
-                
-                // MARK: - Ilustração
-                Image("success_registration") // Substitua por um asset correspondente
-                    .resizable()
-                    .scaledToFit()
-                
-                Spacer()
-                
-                // MARK: - Texto de boas-vindas
                 VStack(spacing: theme.spacing.sm) {
-                    Text("Bem vindo, $$userName)")
+                    Text("Bem vindo,\(appCoordinator.user?.nome?.firstName ?? "usuário")")
                         .font(.title)
                         .fontWeight(.bold)
                         .foregroundColor(theme.colors.contentPrimary)
@@ -43,29 +29,39 @@ struct SuccessRegistrationView: View {
                         .foregroundColor(theme.colors.contentSecondary)
                         .multilineTextAlignment(.center)
                 }
-                .padding(.horizontal, theme.spacing.lg)
+                .padding(.horizontal, theme.spacing.xlg)
                 
                 Spacer()
-                
+            
                 // MARK: - Botão "Explorar"
-                Button(action: {
-                    appCoordinator.goToPage(.dashboard)
-                }, label: {
-                    Text("Explorar")
-                        .font(.headline)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(theme.spacing.md)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.blue)
-                                .shadow(color: Color.blue.opacity(0.3), radius: 10, x: 0, y: 4)
-                        )
-                })
-                .padding(.horizontal, theme.spacing.xlg)
-                .padding(.bottom, theme.spacing.lg)
+                AtomButton(
+                    action: {
+                        self.appCoordinator.goToPage(.dashboard)
+                    },
+                    label: "Explorar",
+                    icon: "arrow.right",
+                    iconPosition: .trailing,
+                    borderRadius: 125,
+                    border: true,
+                    backgroundColor: .blue,
+                    textColor: .white
+                ).padding(.horizontal, theme.spacing.xlg)
+
             }
         }
+    }
+    
+}
+
+// MARK: - Preview
+struct SuccessRegistrationView_Previews: PreviewProvider {
+    static var previews: some View {
+        // Crie uma instância do DependencyContainer para o preview
+        let container = DependencyContainer.shared.container
+        
+        // Retorne a view com as dependências configuradas
+        return SuccessRegistrationView()
+            .environmentObject(Theme())
+            .environmentObject(container.resolve(AppCoordinatorService.self)!)
     }
 }

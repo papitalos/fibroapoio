@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftUI
 
 struct AtomTextInput: View {
     //MARK: - Properties
@@ -28,9 +29,9 @@ struct AtomTextInput: View {
     @Binding var text: String
 
     @FocusState private var inFocus: Bool
+    var onSubmit: (() -> Void)? = nil
 
     //MARK: - Init
-
     init(
         placeholder: String,
         label: String? = nil,
@@ -42,7 +43,8 @@ struct AtomTextInput: View {
         border: Bool = false,
         text: Binding<String>,
         debug: Bool = false,
-        type: UIKeyboardType = .default
+        type: UIKeyboardType = .default,
+        onSubmit: (() -> Void)? = nil
     ) {
         self.placeholder = placeholder
         self.label = label
@@ -55,91 +57,131 @@ struct AtomTextInput: View {
         self._text = text
         self.debug = debug
         self.type = type
+        self.onSubmit = onSubmit
     }
 
     //MARK: - Body
     var body: some View {
         VStack(alignment: .leading) {
-            if label != nil {
-                Text(label ?? "")
+            // Título do campo se existir
+            labelView()
+            
+            // Campo de entrada
+            GeometryReader { geometry in
+                ZStack {
+                    // Campo de texto (senha ou normal)
+                    inputFieldBackground(geometry: geometry)
+                    
+                    // Ícones
+                    iconView(geometry: geometry)
+                }
+            }
+            .frame(maxHeight: 55)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
+    //MARK: - Helper Methods
+    
+    // Método para o label
+    private func labelView() -> some View {
+        Group {
+            if let label = label {
+                Text(label)
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.leading, 12)
             }
-
-            GeometryReader { geometry in
-                ZStack{
-                    Group{
-                        if password {
-                            SecureField(placeholder, text: $text)
-                                .keyboardType(type)
-                                .onChange(of: text) {
-                                    if let maxLength = maxLength, text.count > maxLength {
-                                        let index = text.index(text.startIndex, offsetBy: maxLength)
-                                        text = String(text[..<index])
-                                    }
-                                    
-                                    if debug { print(text) }
-
-                                }
-                                .padding(EdgeInsets(
-                                    top: 16,
-                                    leading: (icon != nil && iconPosition == .leading) ? 52 :
-                                        16,
-                                    bottom: 16,
-                                    trailing: (icon != nil && iconPosition == .trailing) ? 52 : 16))
-
-                        } else {
-                            TextField(placeholder, text: $text)
-                                .keyboardType(type)
-                                .onChange(of: text) {
-                                    if let maxLength = maxLength, text.count > maxLength {
-                                        let index = text.index(text.startIndex, offsetBy: maxLength)
-                                        text = String(text[..<index])
-                                    }
-                                    
-                                    if debug { print(text) }
-
-                                }
-                                .padding(EdgeInsets(
-                                    top: 16,
-                                    leading: (icon != nil && iconPosition == .leading) ? 52 :
-                                        16,
-                                    bottom: 16,
-                                    trailing: (icon != nil && iconPosition == .trailing) ? 52 : 16))
-                        }
-                    }
-                    .background(Color.gray.opacity(0.1))
-                    .cornerRadius(borderRadius)
-                    .overlay {
-                        if border {
-                            RoundedRectangle(cornerRadius: borderRadius)
-                                .stroke(Color.gray.opacity(0.5), lineWidth: 1)
-                        }
-                    }
-                    .foregroundColor(.blue)
-                    .accentColor(.gray)
-                    .cornerRadius(borderRadius)
-                    
-
-                    // Ícone à esquerda (se fornecido)
-                    if icon != nil && iconPosition == .leading {
-                        Image(systemName: icon!)
-                            .foregroundColor(.gray)
-                            .offset(x: -geometry.size.width * 0.42)
-                    }
-                    
-                    // Ícone à direita (se fornecido)
-                    if icon != nil && iconPosition == .trailing {
-                            Image(systemName: icon!)
-                                .foregroundColor(.gray)
-                                .offset(x: geometry.size.width * 0.42)
-                    }
-                }
-            }.frame(maxHeight: 55)
-          
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
+    // Método para o background do campo
+    private func inputFieldBackground(geometry: GeometryProxy) -> some View {
+        Group {
+            if password {
+                secureInputField()
+            } else {
+                regularInputField()
+            }
+        }
+        .padding(EdgeInsets(
+            top: 16,
+            leading: (icon != nil && iconPosition == .leading) ? 52 : 16,
+            bottom: 16,
+            trailing: (icon != nil && iconPosition == .trailing) ? 52 : 16
+        ))
+        .background(Color.gray.opacity(0.1))
+        .cornerRadius(borderRadius)
+        .overlay {
+            if border {
+                RoundedRectangle(cornerRadius: borderRadius)
+                    .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+            }
+        }
+        .foregroundColor(.blue)
+        .accentColor(.gray)
+        .cornerRadius(borderRadius)
+    }
+    
+    // Método para o ícone
+    private func iconView(geometry: GeometryProxy) -> some View {
+        Group {
+            if icon != nil && iconPosition == .leading {
+                Image(systemName: icon!)
+                    .foregroundColor(.gray)
+                    .offset(x: -geometry.size.width * 0.42)
+            } else if icon != nil && iconPosition == .trailing {
+                Image(systemName: icon!)
+                    .foregroundColor(.gray)
+                    .offset(x: geometry.size.width * 0.42)
+            }
+        }
+    }
+    
+    // Método para o campo de entrada regular
+    private func regularInputField() -> some View {
+        TextField(placeholder, text: $text)
+            .keyboardType(type)
+            .focused($inFocus)
+            .submitLabel(.next)
+            .onSubmit {
+                if let onSubmit = self.onSubmit {
+                    onSubmit()
+                }
+            }
+            .onChange(of: text) { handleTextChange() }
+    }
+    
+    // Método para o campo de entrada seguro (senha)
+    private func secureInputField() -> some View {
+        SecureField(placeholder, text: $text)
+            .keyboardType(type)
+            .focused($inFocus)
+            .submitLabel(.next)
+            .onSubmit {
+                if let onSubmit = self.onSubmit {
+                    onSubmit()
+                }
+            }
+            .onChange(of: text) { handleTextChange() }
+    }
+    
+    // Método para lidar com a mudança de texto
+    private func handleTextChange() {
+        if let maxLength = maxLength, text.count > maxLength {
+            let index = text.index(text.startIndex, offsetBy: maxLength)
+            text = String(text[..<index])
+            callOnSubmit()
+        }
+        
+        if debug { print(text) }
+    }
+    
+    // Método para chamar onSubmit se existir
+    private func callOnSubmit() {
+        if let onSubmit = self.onSubmit {
+            onSubmit()
+        }
     }
 }
 
@@ -159,7 +201,6 @@ struct AtomTextInputPreview: View {
                 text: $email,
                 debug: true,
                 type: .emailAddress
-
             )
             
             AtomTextInput(

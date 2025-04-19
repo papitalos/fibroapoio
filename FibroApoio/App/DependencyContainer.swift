@@ -13,6 +13,8 @@ class DependencyContainer {
     let container = Container()
 
     private init() {
+        print("⚙️ APP STARTED")
+
         registerTheme()
         registerServices()
         registerViewModels()
@@ -20,16 +22,20 @@ class DependencyContainer {
     }
     
     private func registerTheme() {
-        print("Registration of theme...")
+        print("registration of theme...")
         
         container.register(Theme.self) { _ in Theme() }.inObjectScope(.container)
     }
 
     private func registerServices() {
-        print("Registration of services...")
+        print("registration of services...")
 
         container.register(FirebaseService.self) { _ in FirebaseService() }.inObjectScope(.container)
-        container.register(AppCoordinatorService.self) { _ in AppCoordinatorService() }.inObjectScope(.container)
+        container.register(AppCoordinatorService.self) { resolver in
+            AppCoordinatorService(
+                userService: resolver.resolve(UserService.self)!
+            )
+        }.inObjectScope(.container)
         container.register(LocalStorageService.self) { _ in LocalStorageService() }.inObjectScope(.container)
         
         container.register(UserService.self) { resolver in
@@ -43,13 +49,14 @@ class DependencyContainer {
             AuthenticationService(
                 firebaseService: resolver.resolve(FirebaseService.self)!,
                 userService: resolver.resolve(UserService.self)!,
-                appCoordinatorService: resolver.resolve(AppCoordinatorService.self)!
+                appCoordinatorService: resolver.resolve(AppCoordinatorService.self)!,
+                localStorageService: resolver.resolve(LocalStorageService.self)!
             )
         }.inObjectScope(.container)
     }
 
     private func registerViewModels() {
-        print("Registration of view models...")
+        print("registration of view models...")
 
             container.register(SplashScreenViewModel.self) { _ in SplashScreenViewModel() }
             container.register(WelcomeScreenViewModel.self) { _ in WelcomeScreenViewModel() }
@@ -62,12 +69,13 @@ class DependencyContainer {
        }
 
        private func registerPages() {
-           print("Registration of pages...")
+           print("registration of pages...")
 
            container.register(SplashScreenView.self) { _ in SplashScreenView() }
            container.register(WelcomeScreenView.self) { _ in WelcomeScreenView() }
            container.register(RegisterScreenView.self) { _ in RegisterScreenView() }
            container.register(CompleteRegisterScreenView.self) { _ in CompleteRegisterScreenView() }
+           container.register(SuccessRegistrationView.self) { _ in SuccessRegistrationView() }
            container.register(LoginScreenView.self) { _ in LoginScreenView() }
            container.register(DashboardScreenView.self) { _ in DashboardScreenView() }
            container.register(HomeScreenView.self) { _ in HomeScreenView() }
