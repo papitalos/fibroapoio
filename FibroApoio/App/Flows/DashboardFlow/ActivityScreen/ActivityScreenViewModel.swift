@@ -1,8 +1,8 @@
 //
-//  DashboardScreenViewModel.swift
+//  ProfileViewModel.swift
 //  FibroApoio
 //
-//  Created by Italo Teofilo Filho on 20/03/2025.
+//  Created by Italo Teofilo Filho on 08/04/2025.
 //
 
 import Firebase
@@ -11,7 +11,7 @@ import FirebaseFirestore
 import SwiftUI
 import Combine
 
-class DashboardScreenViewModel: ObservableObject {
+class RankScreenViewModel: ObservableObject {
     // MARK: - Enviroment Objects
     @Service var appCoordinator: AppCoordinatorService
     var cancellables = Set<AnyCancellable>()

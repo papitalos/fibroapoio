@@ -10,7 +10,7 @@ struct User: Codable, AuditFields{
     // Campos do modelo
     @DocumentID var id: String?
     let identification: String?
-    let id_rank: DocumentReference?
+    var id_rank: DocumentReference?
     let nome: String?
     let nickname: String?
     var pontuacao: Int?
@@ -19,6 +19,7 @@ struct User: Codable, AuditFields{
     var email: String?
     var data_nascimento: Timestamp?
     var altura_cm: Int?
+    var peso_kg: Int?
     var genero: String?
     
     // Auditoria
@@ -40,6 +41,7 @@ struct UserLocalStorage: Codable {
     var email: String?
     var data_nascimento: Date?
     var altura_cm: Int?
+    var peso_kg: Int?
     var genero: String?
     
     // Campos de auditoria
@@ -61,6 +63,7 @@ struct UserLocalStorage: Codable {
         self.telemovel = user.telemovel
         self.email = user.email
         self.altura_cm = user.altura_cm
+        self.peso_kg = user.peso_kg
         self.genero = user.genero
         
         // Converter Timestamp para Date
@@ -92,6 +95,7 @@ struct UserLocalStorage: Codable {
             email: email,
             data_nascimento: data_nascimento != nil ? Timestamp(date: data_nascimento!) : nil,
             altura_cm: altura_cm,
+            peso_kg: peso_kg,
             genero: genero
         )
         
