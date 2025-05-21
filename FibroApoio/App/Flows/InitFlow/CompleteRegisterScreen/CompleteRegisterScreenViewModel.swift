@@ -47,7 +47,7 @@ class CompleteRegisterScreenViewModel: ObservableObject {
         
         guard validateFields() else { return }
         
-        authenticationService.completeRegister(altura_cm: Int(altura)!, genero: genero, data_nascimento: dataNascimento!)
+        authenticationService.completeRegister(altura_cm: Int(altura)!, peso_kg: Int(peso)!, genero: genero, data_nascimento: dataNascimento!)
         .sink(
             receiveCompletion: { completion in
                 switch completion {

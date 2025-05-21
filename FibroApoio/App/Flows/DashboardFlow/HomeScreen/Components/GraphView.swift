@@ -37,7 +37,7 @@ struct GraphView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Atividade Física")
+            Text("Atividade Física da Semana")
                 .font(.headline)
                 .padding(.bottom, 5)
             
@@ -80,9 +80,19 @@ struct GraphView: View {
     }
     
     private func calculateHeight(for value: Int) -> CGFloat {
-        let normalizedValue = min(max(value, 0), 10)
-        return CGFloat(40 + normalizedValue * 6)
+        let clamped = min(max(value, 0), 10)
+
+        guard clamped > 0 else { return 0 }
+
+        let minHeight: CGFloat = 10
+        let maxHeight: CGFloat = 100
+
+        let normalized = Double(clamped) / 10.0
+        let boosted = pow(normalized, 1.5) 
+
+        return minHeight + CGFloat(boosted) * (maxHeight - minHeight)
     }
+
 }
 
 // Preview atualizada

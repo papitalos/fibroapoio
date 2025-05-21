@@ -28,6 +28,16 @@ struct User: Codable, AuditFields{
     var deletedAt: Timestamp?
 }
 
+struct UserWeeklyData: Codable {
+    var exercicios: [Exercicio] = []
+    var dores: [Dor] = []
+    var checkins: [Checkin] = []
+    var medicacoes: [Medicacao] = []
+    var exercicioPorDia: [Int] = []
+    var streakPorDia: [Int] = []
+}
+
+
 // Modelo simplificado para UserDefaults
 struct UserLocalStorage: Codable {
     var id: String?
@@ -80,8 +90,17 @@ struct UserLocalStorage: Codable {
     // Adicionar método para converter de volta para User
     func toUser() -> User {
         // Criar uma referência a partir do path, se existir
-        let rankReference: DocumentReference? = id_rank != nil ?
-            Firestore.firestore().document(id_rank!) : nil
+        let rankReference: DocumentReference? = {
+            guard let path = id_rank,
+                  path.starts(with: "rank/"),
+                  path.components(separatedBy: "/").count == 2 else {
+                print("‼️ id_rank inválido ou mal formatado: \(id_rank ?? "nil")")
+                return nil
+            }
+            return Firestore.firestore().document(path)
+        }()
+
+
             
         var user = User(
             id: id,

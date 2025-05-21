@@ -9,79 +9,124 @@ import FirebaseFirestore
 import Foundation
 
 class LocalStorageService {
+    private let userDefaults = UserDefaults.standard
+    private let lastAccessDateKey = "lastAccessDate"
+
+    init() {
+        let now = Date()
+        if let lastAccessDate = loadLastAccessDate() {
+            if !Calendar.current.isDate(lastAccessDate, inSameDayAs: now) {
+                print("📅 Novo dia detectado. Limpando cache local.")
+                resetAll()
+            } else {
+                print("✅ Mesmo dia, mantendo cache.")
+            }
+        } else {
+            print("📅 Nenhum acesso anterior registrado.")
+        }
+
+        saveLastAccessDate(now)
+    }
+
+
     // MARK: - Welcome Screen
     private let hasSeenWelcomeScreenKey = "hasSeenWelcomeScreen"
 
-    /// Salva o estado de visualização da tela de boas-vindas
     func saveWelcomeScreenState(hasSeen: Bool) {
-           print("\n- SALVANDO ESTADO DA TELA DE BOAS-VINDAS -")
-           userDefaults.set(hasSeen, forKey: hasSeenWelcomeScreenKey)
-           print(" RESULTADO: \(hasSeen ? "Usuário já viu a tela de boas-vindas ✅" : "Estado resetado para não visto 🔁")")
+        userDefaults.set(hasSeen, forKey: hasSeenWelcomeScreenKey)
     }
-    
-    /// Verifica se o usuário já viu a tela de boas-vindas
+
     func hasSeenWelcomeScreen() -> Bool {
-           let hasSeen = userDefaults.bool(forKey: hasSeenWelcomeScreenKey)
-           print("\n- VERIFICANDO ESTADO DA TELA DE BOAS-VINDAS -")
-           print(" RESULTADO: \(hasSeen ? "Usuário já viu a tela de boas-vindas ✅" : "Usuário ainda não viu a tela de boas-vindas ⚠️")")
-           return hasSeen
+        return userDefaults.bool(forKey: hasSeenWelcomeScreenKey)
     }
-    
-    /// Reseta o estado da tela de boas-vindas (para testes ou quando necessário)
+
     func resetWelcomeScreenState() {
-        print("\n- RESETANDO ESTADO DA TELA DE BOAS-VINDAS -")
         userDefaults.removeObject(forKey: hasSeenWelcomeScreenKey)
-        print(" RESULTADO: Estado resetado 🔁")
     }
-    
+
     // MARK: - User
-    private let userDefaults = UserDefaults.standard
     private let userKey = "currentUser"
 
     func saveUser(user: User) {
-        print("\n- SALVANDO USUÁRIO DO LOCALSTORAGE - ")
         let localUser = UserLocalStorage(from: user)
-
-        if let encodedData = try? JSONEncoder().encode(localUser) {
-            userDefaults.set(encodedData, forKey: userKey)
-            print(" RESULTADO: Salvo ✅\n ID: \(String(describing: localUser.id)) ")
-            
+        if let encoded = try? JSONEncoder().encode(localUser) {
+            userDefaults.set(encoded, forKey: userKey)
         } else {
-            print(" RESULTADO: Falha ao salvar usuário no LocalStorage ‼️")
+            print("‼️ Erro ao salvar User no localStorage.")
         }
     }
 
     func loadUser() -> User? {
-        print("\n - PROCURANDO USUÁRIO DO LOCALSTORAGE - ")
-        
-        if let encodedData = userDefaults.data(forKey: userKey),
-           let localUser = try? JSONDecoder().decode(UserLocalStorage.self, from: encodedData) {
-            print(" RESULTADO: Encontrado ✅\n ID: \(String(describing: localUser.id)) ")
-            
-            return User(
-               id: localUser.id,
-               identification: nil,
-               id_rank: nil,
-               nome: localUser.nome,
-               nickname: localUser.nickname,
-               pontuacao: localUser.pontuacao,
-               streak_atual: localUser.streak_atual,
-               telemovel: nil,
-               email: localUser.email,
-               data_nascimento: nil,
-               altura_cm: localUser.altura_cm,
-               genero: localUser.genero,
-               createdAt: localUser.createdAt != nil ? Timestamp(date: localUser.createdAt!) : nil,
-                   updatedAt: localUser.updatedAt != nil ? Timestamp(date: localUser.updatedAt!) : nil,
-                   deletedAt: localUser.deletedAt != nil ? Timestamp (date: localUser.deletedAt!) : nil
-           )
-        } else {
-            print(" RESULTADO: Não Encontrado ⚠️")
+        guard let data = userDefaults.data(forKey: userKey),
+              let localUser = try? JSONDecoder().decode(UserLocalStorage.self, from: data) else {
             return nil
         }
+        return localUser.toUser()
     }
 
     func deleteUser() {
         userDefaults.removeObject(forKey: userKey)
     }
+
+    // MARK: - Weekly Data
+    private let weeklyDataKey = "userWeeklyData"
+
+    func saveWeeklyData(_ data: UserWeeklyData) {
+        if let encoded = try? JSONEncoder().encode(data) {
+            userDefaults.set(encoded, forKey: weeklyDataKey)
+        } else {
+            print("‼️ Erro ao salvar dados semanais.")
+        }
+    }
+
+    func loadWeeklyData() -> UserWeeklyData? {
+        guard let data = userDefaults.data(forKey: weeklyDataKey),
+              let decoded = try? JSONDecoder().decode(UserWeeklyData.self, from: data) else {
+            return nil
+        }
+        return decoded
+    }
+
+    func deleteWeeklyData() {
+        userDefaults.removeObject(forKey: weeklyDataKey)
+    }
+    
+    // MARK: - Weekly Data Timestamp
+    private let weeklyDataDateKey = "userWeeklyDataDate"
+
+    func saveWeeklyDataDate(_ date: Date) {
+        userDefaults.set(date, forKey: weeklyDataDateKey)
+    }
+
+    func loadWeeklyDataDate() -> Date? {
+        return userDefaults.object(forKey: weeklyDataDateKey) as? Date
+    }
+
+    func deleteWeeklyDataDate() {
+        userDefaults.removeObject(forKey: weeklyDataDateKey)
+    }
+    
+    //MARK: - Last Access
+    private func saveLastAccessDate(_ date: Date) {
+        userDefaults.set(date, forKey: lastAccessDateKey)
+    }
+
+    private func loadLastAccessDate() -> Date? {
+        return userDefaults.object(forKey: lastAccessDateKey) as? Date
+    }
+
+    private func deleteLastAccessDate() {
+        userDefaults.removeObject(forKey: lastAccessDateKey)
+    }
+
+    
+    // MARK: - Reset All
+    func resetAll() {
+        deleteUser()
+        deleteWeeklyData()
+        deleteWeeklyDataDate()
+        resetWelcomeScreenState()
+        deleteLastAccessDate()
+    }
+
 }

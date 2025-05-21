@@ -1,5 +1,5 @@
 //
-//  MedicationEntry.swift
+//  MedicationEntryScreenView.swift
 //  FibroApoio
 //
 //  Created by Italo Teofilo Filho on 05/05/2025.
@@ -7,10 +7,10 @@
 
 import SwiftUI
 
-struct MedicationEntryScreen: View {
+struct MedicationEntryScreenView: View {
     // MARK: - Environment & Services
     @EnvironmentObject var theme: Theme
-    @StateObject var viewModel: AddMedicineScreenViewModel
+    @StateObject var viewModel: MedicationEntryScreenViewModel
     @Service var appCoordinator: AppCoordinatorService
     
     // MARK: - Focus State
@@ -30,9 +30,9 @@ struct MedicationEntryScreen: View {
             
             VStack(spacing: theme.spacing.md) {
                 // MARK: - Header
-                HStack {
+                ZStack {
                     Button(action: {
-                        appCoordinator.pop()
+                        appCoordinator.goToPage(.dashboard)
                     }) {
                         ZStack {
                             RoundedRectangle(cornerRadius: 16)
@@ -44,12 +44,12 @@ struct MedicationEntryScreen: View {
                                 .font(.system(size: 18, weight: .semibold))
                         }
                     }
-                    Spacer()
+                    .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 320))
                     Text("Adicionar Medicamento")
                         .font(.headline)
                         .fontWeight(.semibold)
-                    Spacer().frame(width: 44)
                 }
+                .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.horizontal)
                 
                 Spacer()
@@ -64,10 +64,12 @@ struct MedicationEntryScreen: View {
                         text: $viewModel.medicineName
                     )
                     
-                    AtomTimeSelector(
-                        title: "Hora de consumo",
-                        time: viewModel.consumptionTime,
-                        onTap: { viewModel.showTimePicker = true }
+                    AtomTimeInput(
+                        label: "Hora de Consumo",
+                        title: "Selecionar Horário",
+                        time: $viewModel.consumptionTime,
+                        icon: "clock.fill",
+                        border: false
                     )
                     
                     AtomTextInput(
@@ -95,9 +97,15 @@ struct MedicationEntryScreen: View {
                 
                 // MARK: - Botão de Ação
                 VStack {
+                    if let error = viewModel.errorMessage {
+                        Text(error)
+                            .foregroundColor(.red)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+                    }
+                    
                     AtomButton(
-                        action: {
-                            viewModel.saveMedicine()
+                        action: { viewModel.openDialog()
                         },
                         label: "Registrar medicação",
                         borderRadius: 125,
@@ -122,12 +130,34 @@ struct MedicationEntryScreen: View {
             .labelsHidden()
             .presentationDetents([.fraction(0.3)])
         }
+        .overlay(
+            Group {
+                if viewModel.showPoints {
+                    DialogPanel(
+                        isPresented: $viewModel.showPoints,
+                        windowName: "",
+                        title: "+\(viewModel.selectedPoints) ⚡️",
+                        description: "Registro de medicação concluido com sucesso!",
+                        rightButton: (
+                            label: "Continuar",
+                            action: {
+                                viewModel.saveMedicine()
+                            }
+                        ),
+                        leftButton: (
+                            label: "Me enganei",
+                            action: {}
+                        )
+                    )
+                }
+            }
+        )
     }
 
     // MARK: - Init
     init() {
         _viewModel = StateObject(wrappedValue:
-            DependencyContainer.shared.container.resolve(AddMedicineScreenViewModel.self)!
+            DependencyContainer.shared.container.resolve(MedicationEntryScreenViewModel.self)!
         )
     }
 }
@@ -135,7 +165,7 @@ struct MedicationEntryScreen: View {
 // MARK: - Preview
 struct AddMedicineScreenView_Previews: PreviewProvider {
     static var previews: some View {
-        AddMedicineScreenView()
+        MedicationEntryScreenView()
             .environmentObject(Theme())
             .environmentObject(
                 DependencyContainer.shared.container.resolve(AppCoordinatorService.self)!

@@ -15,4 +15,8 @@ enum Screen: Hashable {
     case successRegistration
     case login
     case dashboard
+    case addEntry
+    case painEntry
+    case medicationEntry
+    case exerciseEntry
 }

@@ -14,17 +14,19 @@ class AuthenticationService {
     private let userService: UserService
     private let appCoordinatorService: AppCoordinatorService
     private let localStorageService: LocalStorageService
+    private let gamificationService: GamificationService
 
-    init(firebaseService: FirebaseService, userService: UserService, appCoordinatorService: AppCoordinatorService, localStorageService: LocalStorageService) {
+    private var cancellables = Set<AnyCancellable>()
+
+    init(firebaseService: FirebaseService, userService: UserService, appCoordinatorService: AppCoordinatorService, localStorageService: LocalStorageService, gamificationService: GamificationService) {
         self.firebaseService = firebaseService
         self.appCoordinatorService = appCoordinatorService
         self.userService = userService
         self.localStorageService = localStorageService
+        self.gamificationService = gamificationService
     }
-
-    // MARK: - Properties
-    private var cancellables = Set<AnyCancellable>() // Importante: DEVE estar aqui
-
+    
+    //MARK: - Registro
     /// Registra um novo usuário com email e senha.
     func register(email: String, password: String,
                   nome: String,
@@ -35,30 +37,37 @@ class AuthenticationService {
                 if let error = error {
                     promise(.failure(error))
                 } else {
-                    print("Registro realizado com sucesso!")
+                    print("\n- REALIZANDO REGISTRO -\n RESULTADO: Bem sucedido ✅\n")
                     promise(.success(authResult))
                     if let authResult = authResult {
                         let userId = authResult.user.uid
+                        let randomNick = self.userService.generateRandomNickname()
+                        let initialRankRef = self.firebaseService.reference(to: "rank/qQerwqu5Pnj85oQIu2EU")
 
                         let user: User = User(
                             id: userId,
                             identification: identification,
-                            id_rank: nil,
+                            id_rank: initialRankRef,
                             nome: nome,
-                            nickname: "teste",
-                            pontuacao: 0,
+                            nickname: randomNick,
+                            pontuacao: 5000,
                             streak_atual: 0,
                             telemovel: telemovel,
                             email: email,
                             data_nascimento: nil,
                             altura_cm: 0,
+                            peso_kg: 0,
                             genero: nil
                         )
 
                         // Cria o usuário no Firestore
                         self.userService.createUser(user: user, documentID: userId)
-                            .sink(receiveCompletion: { _ in }, receiveValue: { _ in })
+                            .flatMap { self.userService.loadUser() }
+                            .sink(receiveCompletion: { _ in }, receiveValue: {
+                                self.appCoordinatorService.goToPage(.completeRegister)
+                            })
                             .store(in: &self.cancellables)
+
                     }
                 }
             }
@@ -67,24 +76,50 @@ class AuthenticationService {
     
 
     /// Completa o perfil do usuário atualizando seus dados.
-    func completeRegister(altura_cm: Int, genero: String, data_nascimento: Date) -> AnyPublisher<Void, Error> {
-        return userService.fetchUser()
-            .flatMap { user -> AnyPublisher<Void, Error> in
-                guard var user = user else {
-                    return Fail(error: NSError(domain: "AuthenticationService", code: 0, userInfo: [NSLocalizedDescriptionKey: "‼️ ERROR: Usuário não encontrado no localStorage"])).eraseToAnyPublisher()
-                }
-                
-                // Atualiza os dados do usuário com os novos valores
-                user.altura_cm = altura_cm
-                user.genero = genero
-                user.data_nascimento = Timestamp(date: data_nascimento)
-                
-                // Atualiza o usuário no Firestore
-                return self.userService.updateUser(user: user)
-            }
+    func completeRegister(altura_cm: Int, peso_kg: Int, genero: String, data_nascimento: Date) -> AnyPublisher<Void, Error> {
+        guard var user = userService.currentUser else {
+            return Fail(error: NSError(
+                domain: "AuthenticationService",
+                code: 0,
+                userInfo: [NSLocalizedDescriptionKey: "‼️ ERROR: Usuário não carregado em memória"]
+            )).eraseToAnyPublisher()
+        }
+
+        // Atualiza os dados do usuário com os novos valores
+        user.altura_cm = altura_cm
+        user.peso_kg = peso_kg
+        user.genero = genero
+        user.data_nascimento = Timestamp(date: data_nascimento)
+
+        guard let userId = user.id else {
+            return Fail(error: NSError(
+                domain: "AuthenticationService",
+                code: 1,
+                userInfo: [NSLocalizedDescriptionKey: "‼️ ERROR: ID do usuário não encontrado"]
+            )).eraseToAnyPublisher()
+        }
+
+        // Cria o histórico de peso
+        let historico_peso = HistoricoPeso(
+            id: UUID().uuidString,
+            data_registro: Timestamp(date: Date()),
+            id_usuario: userId,
+            peso_kg: Double(peso_kg)
+        )
+
+        // Salva histórico de peso e atualiza o usuário
+        let pesoPublisher = firebaseService
+            .create(collection: "historico_pesos", data: historico_peso)
+            .map { _ in () }
+            .eraseToAnyPublisher()
+
+        return userService.persistCurrentUser(user)
+            .flatMap { pesoPublisher }
             .eraseToAnyPublisher()
     }
 
+
+    //MARK: - Login
     /// Faz login com email e senha.
     func login(email: String, password: String) -> AnyPublisher<Void, Error> {
         return Future<Void, Error> { [weak self] promise in
@@ -123,17 +158,18 @@ class AuthenticationService {
                                 // Usuário existe no Firestore
                                 print(" RESULTADO: Dados do usuário encontrados no Firestore ✅")
                                 self.localStorageService.saveUser(user: user)
-                                print("1 \(user)")
-                                self.appCoordinatorService.loadUser(user: user)
-                                // Verificar se o perfil está completo
-                                if user.altura_cm != 0 && user.genero != nil && user.data_nascimento != nil {
-                                    print("\n✅ Perfil completo")
-                                    self.appCoordinatorService.goToPage(.dashboard)
-                                } else {
-                                    print("\n⚠️ Perfil incompleto")
-                                    self.appCoordinatorService.goToPage(.completeRegister)
-                                }
-                                promise(.success(()))
+
+                                self.userService.loadUser()
+                                    .sink(receiveCompletion: { _ in }, receiveValue: {
+                                        if user.altura_cm != 0 && user.peso_kg != 0 && user.genero != nil && user.data_nascimento != nil {
+                                            self.appCoordinatorService.goToPage(.dashboard)
+                                        } else {
+                                            self.appCoordinatorService.goToPage(.completeRegister)
+                                        }
+                                        promise(.success(()))
+                                    })
+                                    .store(in: &self.cancellables)
+
                             }
                         }
                     )
@@ -142,7 +178,7 @@ class AuthenticationService {
         }.eraseToAnyPublisher()
     }
 
-
+    //MARK: - Logout
     /// Faz logout do usuário atual.
     func logout() -> AnyPublisher<Void, Error> {
         return Future { promise in
@@ -165,5 +201,11 @@ class AuthenticationService {
         } catch {
             print("‼️ ERROR: Problema ao resetar estado de autenticação:$$error)")
         }
+    }
+    
+    //MARK: - Helpers
+    /// Verifica se existe um usuário logado via FirebaseAuth
+    func isUserLoggedIn() -> Bool {
+        return Auth.auth().currentUser != nil
     }
 }

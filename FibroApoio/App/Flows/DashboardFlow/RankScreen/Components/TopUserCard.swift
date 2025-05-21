@@ -1,9 +1,19 @@
-// MARK: - TopUserCard
+//
+//  TopUserCard.swift
+//  FibroApoio
+//
+//  Created by Italo Teofilo Filho on 26/04/2025.
+//
+import SwiftUI
 
 struct TopUserCard: View {
     var item: RankingItem
-    @EnvironmentObject var appCoordinator: AppCoordinatorService
-
+    let userName: String
+    
+    init(item: RankingItem,userName:String){
+        self.item = item
+        self.userName = userName
+    }
 
     var body: some View {
         HStack {
@@ -14,7 +24,7 @@ struct TopUserCard: View {
                 .background(Circle().fill(Color.green.opacity(0.2)))
             
             VStack(alignment: .leading, spacing: 4) {
-                Text(appCoordinator.user?.nome ?? item.nickname)
+                Text(userName)
                     .font(.headline)
                     .foregroundColor(.black)
                 HStack(spacing: 4) {
@@ -23,21 +33,19 @@ struct TopUserCard: View {
                         .foregroundColor(.gray)
                     Text("#\(item.position ?? 999999)")
                         .font(.subheadline)
-                        .foregroundColor(.red)
-                    Image(systemName: "arrow.down")
-                        .foregroundColor(.red)
-                        .font(.subheadline)
+                        .foregroundColor(.blue)
                 }
             }
             Spacer()
             VStack {
                 Text(item.rankName.capitalized)
                     .font(.caption)
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 12)
+                    .fontWeight(.medium)
+                    .padding(.horizontal, 10)
                     .padding(.vertical, 4)
-                    .background(Color.brown)
-                    .cornerRadius(10)
+                    .background(Color.brown.opacity(0.2))
+                    .foregroundColor(.brown)
+                    .cornerRadius(8)
                 
                 HStack(spacing: 4) {
                     Image(systemName: "bolt.fill")

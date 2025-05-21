@@ -10,13 +10,9 @@ import SwiftUI
 
 class AppCoordinatorService: ObservableObject {
     @Published var currentPage: Screen = .splash
-    @Published var user: User?
-
     private var cancellables = Set<AnyCancellable>()
-    private let userService: UserService
 
-    init(userService: UserService){
-        self.userService = userService
+    init(){
         print("- 🚪 PAGINA INICIAL CARREGADA: \(currentPage) -")
         
     }
@@ -38,21 +34,21 @@ class AppCoordinatorService: ObservableObject {
             CompleteRegisterScreenView()
         case .successRegistration:
             SuccessRegistrationView()
+        case .painEntry:
+            PainEntryScreenView()
+        case .medicationEntry:
+            MedicationEntryScreenView()
+        case .addEntry:
+            AddEntryScreenView()
+        case .exerciseEntry:
+            ExerciseEntryScreenView()
         }
-        
+
     }
 
     func goToPage(_ screen: Screen) {
         print("\n- 🚪 MUDANDO DE PAGINA -\n \(currentPage) -> \(screen)")
         currentPage = screen
     }
-    
-    func loadUser(user: User?) {
-        print("\n- 😃 USUARIO CARREGADO ABAIXO: -")
-        print(user!)
-        self.user = user
-        
-    }
-    
     
 }

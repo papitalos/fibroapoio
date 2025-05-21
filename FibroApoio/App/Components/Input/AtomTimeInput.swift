@@ -80,7 +80,7 @@ struct AtomTimeInput: View {
     }
 }
 
-struct AtomTimeSelectorPreview: View {
+struct AtomTimeInputPreview: View {
     @State private var selectedTime: Date = Date()
 
     var body: some View {
@@ -97,8 +97,8 @@ struct AtomTimeSelectorPreview: View {
     }
 }
 
-struct AtomTimeSelector_Previews: PreviewProvider {
+struct AtomTimeInput_Previews: PreviewProvider {
     static var previews: some View {
-        AtomTimeSelectorPreview()
+        AtomTimeInputPreview()
     }
 }

@@ -1,28 +1,23 @@
 import SwiftUI
 
 struct AtomSelectButton: View {
-    //MARK: - Properties
-    // State
+    // MARK: - Properties
     enum Selection {
         case left, right
     }
 
     @Binding var selection: Selection
 
-    // Configurações
-    let buttons: [(String, () -> Void)] // Array de tuples para garantir a ordem
-    
+    let buttons: [(String, () -> Void)]
 
-    // Estilos
-    var borderRadius: CGFloat = 16
-    var border: Bool = false
-    var mainBackgroundColor: Color = .gray.opacity(0.2)
-    var buttonBackgroundColor: Color = .gray.opacity(0.5)
-    var buttonTextColor: Color = .black
-    var unselectedTextColor: Color = .gray
+    // Configurações visuais
+    var borderRadius: CGFloat
+    var border: Bool
+    var mainBackgroundColor: Color
+    var buttonBackgroundColor: Color
+    var buttonTextColor: Color
 
-    //MARK: - Init
-
+    // MARK: - Init
     init(
         selection: Binding<Selection>,
         buttons: [(String, () -> Void)],
@@ -31,7 +26,6 @@ struct AtomSelectButton: View {
         mainBackgroundColor: Color = .gray.opacity(0.2),
         buttonBackgroundColor: Color = .gray.opacity(0.5),
         buttonTextColor: Color = .black,
-        unselectedTextColor: Color = .gray
     ) {
         self._selection = selection
         self.buttons = buttons
@@ -40,14 +34,13 @@ struct AtomSelectButton: View {
         self.mainBackgroundColor = mainBackgroundColor
         self.buttonBackgroundColor = buttonBackgroundColor
         self.buttonTextColor = buttonTextColor
-        self.unselectedTextColor = unselectedTextColor
     }
 
-    //MARK: - Body
+    // MARK: - Body
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .leading) {
-                // Retângulo de fundo com borderRadius
+                // Fundo principal
                 RoundedRectangle(cornerRadius: borderRadius)
                     .fill(mainBackgroundColor)
                     .frame(height: geometry.size.height)
@@ -56,59 +49,56 @@ struct AtomSelectButton: View {
                             .stroke(border ? Color.gray : Color.clear, lineWidth: 1)
                     )
 
-                // Retângulo do botão selecionado
+                // Indicador do botão selecionado
                 RoundedRectangle(cornerRadius: borderRadius)
                     .fill(buttonBackgroundColor)
                     .frame(
                         width: geometry.size.width / CGFloat(buttons.count),
                         height: geometry.size.height
                     )
-                    .offset(x: selection == .left ? 0 : (buttons.count > 1 ? geometry.size.width / CGFloat(buttons.count) : 0))
+                    .offset(x: selection == .left ? 0 : geometry.size.width / CGFloat(buttons.count))
                     .animation(.easeInOut(duration: 0.3), value: selection)
 
-                // Toggle Button
                 HStack(spacing: 0) {
-                    if buttons.count > 0 {
-                        // Left button
+                    // Botão esquerdo (se existir)
+                    if buttons.indices.contains(0) {
                         Button(action: {
                             withAnimation {
                                 selection = .left
-                                buttons[0].1() // Executa a ação do primeiro botão
+                                buttons[0].1()
                             }
                         }) {
-                            Text(buttons[0].0) // Exibe o título do primeiro botão
-                                .foregroundColor(selection == .left ? buttonTextColor : unselectedTextColor)
+                            Text(buttons[0].0)
+                                .foregroundColor(buttonTextColor)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                         }
-                        .frame(
-                            width: geometry.size.width / CGFloat(buttons.count),
-                            height: geometry.size.height
-                        )
+                        .frame(width: geometry.size.width / CGFloat(buttons.count),
+                               height: geometry.size.height)
+                        // fundo do não-selecionado
+                        .background(Color.clear)
                         .contentShape(Rectangle())
                         .buttonStyle(PlainButtonStyle())
                     }
 
-                    if buttons.count > 1 {
-                        // Right button
+                    // Botão direito (se existir)
+                    if buttons.indices.contains(1) {
                         Button(action: {
                             withAnimation {
                                 selection = .right
-                                buttons[1].1() // Executa a ação do segundo botão
+                                buttons[1].1()
                             }
                         }) {
-                            Text(buttons[1].0) // Exibe o título do segundo botão
-                                .foregroundColor(selection == .right ? buttonTextColor : unselectedTextColor)
+                            Text(buttons[1].0)
+                                .foregroundColor(buttonTextColor)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                         }
-                        .frame(
-                            width: geometry.size.width / CGFloat(buttons.count),
-                            height: geometry.size.height
-                        )
+                        .frame(width: geometry.size.width / CGFloat(buttons.count),
+                               height: geometry.size.height)
+                        .background(Color.clear)
                         .contentShape(Rectangle())
                         .buttonStyle(PlainButtonStyle())
                     }
                 }
-                .contentShape(Rectangle())
                 .frame(width: geometry.size.width, height: geometry.size.height)
             }
         }
@@ -116,7 +106,7 @@ struct AtomSelectButton: View {
     }
 }
 
-//MARK: - Preview
+// MARK: - Preview
 
 struct AtomSelectButton_Preview: PreviewProvider {
     static var previews: some View {
@@ -124,35 +114,26 @@ struct AtomSelectButton_Preview: PreviewProvider {
     }
 
     struct PreviewWrapper: View {
-        @State var selection1: AtomSelectButton.Selection = .left
-        @State var selection2: AtomSelectButton.Selection = .left
+        @State private var sel1: AtomSelectButton.Selection = .left
+        @State private var sel2: AtomSelectButton.Selection = .left
 
         var body: some View {
-            VStack {
+            VStack(spacing: 20) {
                 AtomSelectButton(
-                    selection: $selection1,
+                    selection: $sel1,
                     buttons: [
-                        ("Opção A", { print("Opção A selecionada") }),
-                        ("Opção B", { print("Opção B selecionada") }),
+                        ("Opção A", { print("A") }),
+                        ("Opção B", { print("B") })
                     ],
-                    borderRadius: 5,
+                    borderRadius: 8,
                     border: true,
+                    mainBackgroundColor: .yellow.opacity(0.3),
                     buttonBackgroundColor: .blue,
                     buttonTextColor: .white
                 )
-                AtomSelectButton(
-                    selection: $selection2,
-                    buttons: [
-                        ("Única", { print("Única opção") })
-                    ],
-                    borderRadius: 5,
-                    border: true,
-                    buttonBackgroundColor: .green,
-                    buttonTextColor: .white
-                )
-                
-                Text("Selection \(selection1)")
+                Text("Selecionado: \(sel1 == .left ? "A" : "B")")
             }
+            .padding()
         }
     }
 }

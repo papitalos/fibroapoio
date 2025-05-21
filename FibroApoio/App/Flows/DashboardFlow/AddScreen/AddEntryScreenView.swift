@@ -13,48 +13,59 @@ struct AddEntryScreenView: View {
     @Service var appCoordinator: AppCoordinatorService
 
     var body: some View {
-        VStack(spacing: theme.spacing.lg) {
-            Spacer()
+        ZStack {
+            Color.white
+                .ignoresSafeArea()
 
-            Text("O que deseja registrar?")
-                .font(.title2)
+            VStack {
+                // MARK: - Header
+                Text("O que deseja registrar?").heading(theme)
                 .fontWeight(.bold)
-                .padding(.bottom, theme.spacing.md)
+                .padding(.top, theme.spacing.xlg)
+                .padding(.horizontal, theme.spacing.xlg)
+                .frame(maxWidth: .infinity, alignment: .center)
 
-            VStack(spacing: theme.spacing.md) {
-                AtomButton(
-                    action: { appCoordinator.goToPage(.addMedication) },
-                    label: "Medicação",
-                    borderRadius: 16,
-                    border: true,
-                    backgroundColor: .purple,
-                    textColor: .white
-                )
+                Spacer()
 
-                AtomButton(
-                    action: { appCoordinator.goToPage(.addFood) },
-                    label: "Alimentação",
-                    borderRadius: 16,
-                    border: true,
-                    backgroundColor: .green,
-                    textColor: .white
-                )
+                // MARK: - Options
+                VStack(spacing: theme.spacing.md) {
+                    AtomButton(
+                        action: { appCoordinator.goToPage(.medicationEntry) },
+                        label: "Medicação",
+                        borderRadius: 16,
+                        border: true,
+                        backgroundColor: theme.colors.brandSecondary,
+                        textColor: .white
+                    )
+                    AtomButton(
+                        action: { appCoordinator.goToPage(.painEntry) },
+                        label: "Dores",
+                        borderRadius: 16,
+                        border: true,
+                        backgroundColor: .green,
+                        textColor: .white
+                    )
+                    AtomButton(
+                        action: { appCoordinator.goToPage(.exerciseEntry) },
+                        label: "Atividade Física",
+                        borderRadius: 16,
+                        border: true,
+                        backgroundColor: .blue,
+                        textColor: .white
+                    )
+                }
+                .padding(.horizontal, theme.spacing.xlg)
 
-                AtomButton(
-                    action: { appCoordinator.goToPage(.addActivity) },
-                    label: "Atividade Física",
-                    borderRadius: 16,
-                    border: true,
-                    backgroundColor: .blue,
-                    textColor: .white
-                )
+                Spacer()
             }
-            .padding(.horizontal, theme.spacing.xlg)
-
-            Spacer()
         }
-        .padding(.top, theme.spacing.xlg)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.white.ignoresSafeArea())
+    }
+}
+
+struct AddEntryScreenView_Previews: PreviewProvider {
+    static var previews: some View {
+        AddEntryScreenView()
+            .environmentObject(Theme())
+            .environmentObject(DependencyContainer.shared.container.resolve(AppCoordinatorService.self)!)
     }
 }

@@ -30,18 +30,29 @@ class DependencyContainer {
     private func registerServices() {
         print("registration of services...")
 
-        container.register(FirebaseService.self) { _ in FirebaseService() }.inObjectScope(.container)
-        container.register(AppCoordinatorService.self) { resolver in
-            AppCoordinatorService(
-                userService: resolver.resolve(UserService.self)!
+        container.register(FirebaseService.self) { resolver in
+            FirebaseService(
+                localStorageService: resolver.resolve(LocalStorageService.self)!
             )
         }.inObjectScope(.container)
+        
+        container.register(AppCoordinatorService.self) { _ in AppCoordinatorService() }.inObjectScope(.container)
         container.register(LocalStorageService.self) { _ in LocalStorageService() }.inObjectScope(.container)
+        container.register(UtilService.self) { _ in UtilService() }.inObjectScope(.container)
+        
+        container.register(GamificationService.self) { resolver in
+            GamificationService(
+                firebaseService: resolver.resolve(FirebaseService.self)!,
+                userService: resolver.resolve(UserService.self)!,
+                localStorageService: resolver.resolve(LocalStorageService.self)!
+            )
+        }.inObjectScope(.container)
         
         container.register(UserService.self) { resolver in
             UserService(
                 firebaseService: resolver.resolve(FirebaseService.self)!,
-                localStorageService: resolver.resolve(LocalStorageService.self)!
+                localStorageService: resolver.resolve(LocalStorageService.self)!,
+                utilService: resolver.resolve(UtilService.self)!
             )
         }.inObjectScope(.container)
         
@@ -50,7 +61,8 @@ class DependencyContainer {
                 firebaseService: resolver.resolve(FirebaseService.self)!,
                 userService: resolver.resolve(UserService.self)!,
                 appCoordinatorService: resolver.resolve(AppCoordinatorService.self)!,
-                localStorageService: resolver.resolve(LocalStorageService.self)!
+                localStorageService: resolver.resolve(LocalStorageService.self)!,
+                gamificationService: resolver.resolve(GamificationService.self)!
             )
         }.inObjectScope(.container)
     }
@@ -63,9 +75,14 @@ class DependencyContainer {
             container.register(RegisterScreenViewModel.self) { _ in RegisterScreenViewModel() }
             container.register(CompleteRegisterScreenViewModel.self) { _ in CompleteRegisterScreenViewModel() }
             container.register(LoginScreenViewModel.self) { _ in LoginScreenViewModel() }
-            container.register(DashboardScreenViewModel.self) { _ in DashboardScreenViewModel() }
+        
             container.register(HomeScreenViewModel.self) { _ in HomeScreenViewModel() }
-            container.register(ProfileScreenViewModel.self) { _ in ProfileScreenViewModel() }
+            container.register(RankScreenViewModel.self) { _ in RankScreenViewModel() }
+            container.register(ActivityScreenViewModel.self) { _ in ActivityScreenViewModel() }
+        
+            container.register(PainEntryScreenViewModel.self) { _ in PainEntryScreenViewModel() }
+            container.register(MedicationEntryScreenViewModel.self) { _ in MedicationEntryScreenViewModel() }
+            container.register(ExerciseEntryScreenViewModel.self) { _ in ExerciseEntryScreenViewModel() }
        }
 
        private func registerPages() {
@@ -77,9 +94,18 @@ class DependencyContainer {
            container.register(CompleteRegisterScreenView.self) { _ in CompleteRegisterScreenView() }
            container.register(SuccessRegistrationView.self) { _ in SuccessRegistrationView() }
            container.register(LoginScreenView.self) { _ in LoginScreenView() }
+           
            container.register(DashboardScreenView.self) { _ in DashboardScreenView() }
+           
            container.register(HomeScreenView.self) { _ in HomeScreenView() }
            container.register(ProfileScreenView.self) { _ in ProfileScreenView() }
+           container.register(RankScreenView.self) { _ in RankScreenView() }
+           container.register(ActivityScreenView.self) { _ in ActivityScreenView() }
+           
+           container.register(PainEntryScreenView.self) { _ in PainEntryScreenView() }
+           container.register(MedicationEntryScreenView.self) { _ in MedicationEntryScreenView() }
+           container.register(ExerciseEntryScreenView.self) { _ in ExerciseEntryScreenView() }
+           container.register(AddEntryScreenView.self) { _ in AddEntryScreenView() }
        }
 
 }

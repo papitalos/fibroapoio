@@ -2,45 +2,60 @@
 //  DialogPanel.swift
 //  FibroApoio
 //
-//  Created by ChatGPT on 30/04/2025.
+//  Created by Italo Teofilo Filho on 30/04/2025.
 //
 
 import SwiftUI
 
-/// Um painel de diálogo genérico, com:
-/// 1. “X” de fechar no canto superior esquerdo (e tap fora fecha);
-/// 2. Nome da janela opcional ao lado do “X”;
-/// 3. Título principal;
-/// 4. Descrição;
-/// 5. Botão esquerdo (opcional);
-/// 6. Botão direito (obrigatório).
 struct DialogPanel: View {
-    
     // MARK: - Bindings
-    /// Controle de exibição do painel
     @Binding var isPresented: Bool
     
     // MARK: - Configurações de texto
-    /// Nome da janela (opcional)
     let windowName: String?
-    /// Título principal
     let title: String
-    /// Descrição
     let description: String
     
     // MARK: - Ações dos botões
-    /// Botão da esquerda (texto + ação). Opcional.
-    let leftButton: (label: String, action: () -> Void)?
-    /// Botão da direita (texto + ação). Obrigatório.
     let rightButton: (label: String, action: () -> Void)
+    let leftButton: (label: String, action: () -> Void)?
     
     // MARK: - Estilo
     var panelBackground: Color = Color(.systemBackground)
     var titleFont: Font = .title2.bold()
     var descriptionFont: Font = .body
-    var buttonFont: Font = .headline
-    var leftButtonStyle: ButtonStyle = DefaultButtonStyle()
-    var rightButtonStyle: ButtonStyle = DefaultButtonStyle()
+    var buttonFont: Font = .subheadline.bold()
+    var leftButtonColor: Color = .gray.opacity(0.1)
+    var rightButtonColor: Color = .accentColor
+    
+    init(
+        isPresented: Binding<Bool>,
+        windowName: String? = nil,
+        title: String,
+        description: String,
+        rightButton: (label: String, action: () -> Void),
+        leftButton: (label: String, action: () -> Void)? = nil,
+        panelBackground: Color = Color(.systemBackground),
+        titleFont: Font = .title2.bold(),
+        descriptionFont: Font = .body,
+        buttonFont: Font = .subheadline.bold(),
+        leftButtonColor: Color = .gray.opacity(0.1),
+        rightButtonColor: Color = .accentColor
+    ) {
+        self._isPresented = isPresented
+        self.windowName = windowName
+        self.title = title
+        self.description = description
+        self.rightButton = rightButton
+        self.leftButton = leftButton
+        self.panelBackground = panelBackground
+        self.titleFont = titleFont
+        self.descriptionFont = descriptionFont
+        self.buttonFont = buttonFont
+        self.leftButtonColor = leftButtonColor
+        self.rightButtonColor = rightButtonColor
+    }
+
     
     var body: some View {
         ZStack {
@@ -95,8 +110,11 @@ struct DialogPanel: View {
                             Text(left.label)
                                 .font(buttonFont)
                                 .frame(maxWidth: .infinity)
+                                .foregroundColor(.black)
                         }
-                        .buttonStyle(leftButtonStyle)
+                        .padding(16)
+                        .background(leftButtonColor)
+                        .cornerRadius(16)
                     }
                     
                     Button(action: {
@@ -106,14 +124,17 @@ struct DialogPanel: View {
                         Text(rightButton.label)
                             .font(buttonFont)
                             .frame(maxWidth: .infinity)
+                            .foregroundColor(.white)
                     }
-                    .buttonStyle(rightButtonStyle)
+                    .padding(16)
+                    .background(rightButtonColor)
+                    .cornerRadius(16)
                 }
             }
-            .padding(24)
+            .padding(16)
             .background(panelBackground)
             .cornerRadius(16)
-            .frame(maxWidth: 320)
+            .frame(maxWidth: 360)
             .shadow(radius: 20)
         }
         .animation(.easeInOut, value: isPresented)
@@ -135,13 +156,13 @@ struct DialogPanel_Previews: PreviewProvider {
                     windowName: "Registro de Dores",
                     title: "Está sentindo alguma dor?",
                     description: "Dores musculares, dores de cabeça, dor nos ossos, alguma coisa?",
-                    leftButton: (
-                        label: "Não sinto dor",
-                        action: { print("Não sinto dor clicado") }
-                    ),
                     rightButton: (
                         label: "Sim, sinto dores",
                         action: { print("Sim, sinto dores clicado") }
+                    ),
+                    leftButton: (
+                        label: "Não sinto dor",
+                        action: { print("Não sinto dor clicado") }
                     )
                 )
             }

@@ -1,3 +1,11 @@
+//
+//  ExerciseEntryScreenView.swift
+//  FibroApoio
+//
+//  Created by Italo Teofilo Filho on 05/05/2025.
+//
+
+
 import SwiftUI
 
 struct ExerciseEntryScreenView: View {
@@ -48,14 +56,6 @@ struct ExerciseEntryScreenView: View {
                     text: $viewModel.exerciseName
                 )
 
-                AtomTextInput(
-                    placeholder: "Tipo de exercício",
-                    icon: "figure.walk",
-                    iconPosition: .leading,
-                    maxLength: 30,
-                    text: $viewModel.exerciseType
-                )
-
                 AtomTimeInput(
                     label: "Início",
                     title: "Hora de Início",
@@ -89,9 +89,16 @@ struct ExerciseEntryScreenView: View {
 
             // Botão
             VStack {
+                if let error = viewModel.errorMessage {
+                    Text(error)
+                        .foregroundColor(.red)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                }
+                
                 AtomButton(
                     action: {
-                        viewModel.saveExercise()
+                        viewModel.openDialog()
                     },
                     label: "Registrar Exercício",
                     borderRadius: 125,
@@ -113,15 +120,15 @@ struct ExerciseEntryScreenView: View {
                         windowName: "",
                         title: "+\(viewModel.selectedPoints) ⚡️",
                         description: "Exercício registrado com sucesso!",
-                        leftButton: (
-                            label: "Me enganei",
-                            action: {}
-                        ),
                         rightButton: (
                             label: "Continuar",
                             action: {
                                 viewModel.saveExercise()
                             }
+                        ),
+                        leftButton: (
+                            label: "Me enganei",
+                            action: {}
                         )
                     )
                 }

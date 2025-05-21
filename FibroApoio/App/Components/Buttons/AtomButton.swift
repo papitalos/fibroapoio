@@ -29,7 +29,6 @@ struct AtomButton: View {
         label: String? = nil,
         icon: String? = nil,
         iconPosition: Edge.Set = .leading,
-        password: Bool = false,
         borderRadius: CGFloat = 16,
         border: Bool = false,
         backgroundColor: Color = .gray.opacity(0.5),

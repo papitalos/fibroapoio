@@ -4,16 +4,22 @@
 //
 //  Created by Italo Teofilo Filho on 07/04/2025.
 //
+import Combine
 import SwiftUI
 
 struct ProfileScreenView: View {
     // MARK: - Enviroment Objects
     @EnvironmentObject var theme: Theme
-    @StateObject var viewModel: ProfileScreenViewModel
-    @State var notificationsEnabled = true
     @Service var appCoordinator: AppCoordinatorService
+    @Service var userService: UserService
     @Service var localStorageService: LocalStorageService
     @Service var authenticationService: AuthenticationService
+    @Service var gamificationService: GamificationService
+    
+    @State private var cancellables = Set<AnyCancellable>()
+    
+    @State private var rankName = "—"
+    @State private var ageNumber = "0"
 
     var body: some View {
         VStack(spacing: 20) {
@@ -34,9 +40,9 @@ struct ProfileScreenView: View {
                         )
 
                     VStack(alignment: .leading, spacing: 5) {
-                        Text(appCoordinator.user?.nome?.firstName ?? "Usuário")
+                        Text(userService.currentUser?.nome?.firstName ?? "Usuário")
                             .font(.headline)
-                        if let createdAt = appCoordinator.user?.createdAt {
+                        if let createdAt = userService.currentUser?.createdAt {
                             let formattedDate = createdAt.toFormattedDateString()
                             Text(formattedDate)
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -48,7 +54,7 @@ struct ProfileScreenView: View {
                 }
                 Spacer()
                 VStack(alignment: .center) {
-                    Text("Madeira")
+                    Text(rankName.capitalized)
                         .font(.caption)
                         .fontWeight(.medium)
                         .padding(.horizontal, 10)
@@ -60,7 +66,7 @@ struct ProfileScreenView: View {
                         Image(systemName: "bolt.fill")
                             .foregroundColor(.yellow)
                             .font(.footnote)
-                        Text("10.500")
+                        Text(String(userService.currentUser?.pontuacao ?? 0))
                             .font(.headline)
                     }
                 }
@@ -68,8 +74,11 @@ struct ProfileScreenView: View {
             }.padding(.horizontal)
 
             HStack(spacing: 4) {
+                let altura = userService.currentUser?.altura_cm ?? 0
+                let peso = userService.currentUser?.peso_kg ?? 0
+                
                 VStack {
-                    Text("173cm").subtitle(self.theme).bold()
+                    Text("\(altura) cm").subtitle(self.theme).bold()
                         .foregroundColor(theme.colors.brandPrimary)
                     Text("Altura").font(.subheadline)
                         .foregroundColor(.gray)
@@ -77,16 +86,16 @@ struct ProfileScreenView: View {
                 }.padding(24).background(Color(.systemGray6)).cornerRadius(16)
                 Spacer()
                 VStack {
-                    Text("173cm").subtitle(self.theme).bold()
+                    Text("\(peso) kg").subtitle(self.theme).bold()
                         .foregroundColor(theme.colors.brandPrimary)
-                    Text("Altura").font(.subheadline)
+                    Text("Peso").font(.subheadline)
                         .foregroundColor(.gray)
 
                 }.padding(24).background(Color(.systemGray6)).cornerRadius(16)
                 Spacer()
                 VStack {
-                    Text("173cm").subtitle(self.theme).bold() .foregroundColor(theme.colors.brandPrimary)
-                    Text("Altura").font(.subheadline)
+                    Text(ageNumber).subtitle(self.theme).bold() .foregroundColor(theme.colors.brandPrimary)
+                    Text("Idade").font(.subheadline)
                         .foregroundColor(.gray)
 
                 }.padding(24).background(Color(.systemGray6)).cornerRadius(16)
@@ -104,6 +113,16 @@ struct ProfileScreenView: View {
                 underlined: false
             ).padding(16).frame(maxWidth: .infinity, alignment: .trailing)
         }
+        .onAppear {
+            gamificationService.fetchCurrentRank { rank in
+                rankName = rank?.getName() ?? "Nenhum"
+            }
+            
+            userService.calculateCurrentUserAge { age in
+                ageNumber = String(age!)
+            }
+
+        }
         .padding(EdgeInsets(top: 32, leading: 16, bottom: 32, trailing: 16))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -115,29 +134,20 @@ struct ProfileScreenView: View {
                 receiveCompletion: { completion in
                     switch completion {
                     case .finished:
-                        if(self.localStorageService.hasSeenWelcomeScreen()) {
+                        if self.localStorageService.hasSeenWelcomeScreen() {
                             self.appCoordinator.goToPage(.login)
-                        }else{
+                        } else {
                             self.appCoordinator.goToPage(.welcome)
-                        }                    case .failure(let error):
+                        }
+                    case .failure(let error):
                         print("‼️ ERROR: Problema ao realizar logout \(error)")
                     }
                 },
-                receiveValue: { _ in
-                }
+                receiveValue: { _ in }
             )
-            .store(in: &viewModel.cancellables)
+            .store(in: &cancellables)
     }
-    // MARK: - Init
-    init() {
-        _viewModel = StateObject(
-            wrappedValue:
-                DependencyContainer.shared.container.resolve(
-                    ProfileScreenViewModel.self
-                )!
-        )
-        
-    }
+
 }
 
 // MARK: - Preview

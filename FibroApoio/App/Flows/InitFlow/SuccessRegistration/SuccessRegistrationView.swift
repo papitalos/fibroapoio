@@ -11,6 +11,7 @@ struct SuccessRegistrationView: View {
     // MARK: - Environment Objects
     @EnvironmentObject var theme: Theme
     @Service var appCoordinator: AppCoordinatorService
+    @Service var userService: UserService
     
     // MARK: - Body
     var body: some View {
@@ -19,7 +20,7 @@ struct SuccessRegistrationView: View {
                 Image("lootie-6")
                 Spacer()
                 VStack(spacing: theme.spacing.sm) {
-                    Text("Bem vindo,\(appCoordinator.user?.nome?.firstName ?? "usuário")")
+                    Text("Bem vindo,\(userService.currentUser?.nome?.firstName ?? "usuário")")
                         .font(.title)
                         .fontWeight(.bold)
                         .foregroundColor(theme.colors.contentPrimary)

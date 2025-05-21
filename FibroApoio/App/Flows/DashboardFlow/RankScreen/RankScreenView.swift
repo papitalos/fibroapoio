@@ -1,155 +1,85 @@
 //
-//  ProfileView.swift
+//  RankScreenView.swift
 //  FibroApoio
 //
 //  Created by Italo Teofilo Filho on 07/04/2025.
 //
+
 import SwiftUI
 
-struct ProfileScreenView: View {
-    // MARK: - Enviroment Objects
+struct RankScreenView: View {
+    @StateObject var viewModel: RankScreenViewModel
     @EnvironmentObject var theme: Theme
-    @StateObject var viewModel: ProfileScreenViewModel
-    @State var notificationsEnabled = true
-    @Service var appCoordinator: AppCoordinatorService
-    @Service var localStorageService: LocalStorageService
-    @Service var authenticationService: AuthenticationService
+    @Service var userService: UserService
 
     var body: some View {
-        VStack(spacing: 20) {
-            Text("Perfil")
-                .font(.title)
-                .bold()
+        VStack(spacing: 16) {
+            if let myItem = viewModel.myItem {
+                TopUserCard(item: myItem, userName: userService.currentUser?.nome?.firstName ?? "Usuário" )
+                    .padding(.horizontal)
+            }
 
-            HStack {
-                // Avatar e informações
-                HStack(spacing: 15) {
-                    Image(systemName: "person.fill")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 60, height: 60)
-                        .padding(16)
-                        .background(
-                            Circle().fill(Color(.systemGroupedBackground))
-                        )
-
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text(appCoordinator.user?.nome?.firstName ?? "Usuário")
-                            .font(.headline)
-                        if let createdAt = appCoordinator.user?.createdAt {
-                            let formattedDate = createdAt.toFormattedDateString()
-                            Text(formattedDate)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                        }
-                        
-                    }
-                }
-                Spacer()
-                VStack(alignment: .center) {
-                    Text("Madeira")
-                        .font(.caption)
-                        .fontWeight(.medium)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 4)
-                        .background(Color.brown.opacity(0.2))
-                        .foregroundColor(.brown)
-                        .cornerRadius(8)
-                    HStack {
-                        Image(systemName: "bolt.fill")
-                            .foregroundColor(.yellow)
-                            .font(.footnote)
-                        Text("10.500")
-                            .font(.headline)
-                    }
-                }
+            ScrollView {
+                AtomList(items: viewModel.ranking.enumerated().map { index, item in
+                    let isCurrentUser = item.id == viewModel.myItem?.id
+                    
+                    return AtomListItem(
+                        title: isCurrentUser ? (viewModel.userService.currentUser?.nome ?? "Você") : item.nickname,
+                        subtitle: nil,
+                        image: Image(systemName: "person.crop.circle.fill"),
+                        tag: "#\(index + 1)",
+                        tagBackgroundColor: index == 0 ? Color.green.opacity(0.2) : (index == 1 ? Color.green.opacity(0.1) : nil),
+                        tagTextColor: .black,
+                        imageBackground: Color.green.opacity(0.2),
+                        actions: []
+                    )
+                })
                 .padding(.horizontal)
-            }.padding(.horizontal)
-
-            HStack(spacing: 4) {
-                VStack {
-                    Text("173cm").subtitle(self.theme).bold()
-                        .foregroundColor(theme.colors.brandPrimary)
-                    Text("Altura").font(.subheadline)
-                        .foregroundColor(.gray)
-
-                }.padding(24).background(Color(.systemGray6)).cornerRadius(16)
-                Spacer()
-                VStack {
-                    Text("173cm").subtitle(self.theme).bold()
-                        .foregroundColor(theme.colors.brandPrimary)
-                    Text("Altura").font(.subheadline)
-                        .foregroundColor(.gray)
-
-                }.padding(24).background(Color(.systemGray6)).cornerRadius(16)
-                Spacer()
-                VStack {
-                    Text("173cm").subtitle(self.theme).bold() .foregroundColor(theme.colors.brandPrimary)
-                    Text("Altura").font(.subheadline)
-                        .foregroundColor(.gray)
-
-                }.padding(24).background(Color(.systemGray6)).cornerRadius(16)
-
-            }.padding(.horizontal)
-            Spacer()
-            AtomActionableText(
-                fullText: "Sair do App",
-                actions: [
-                    "Sair do app":
-                        { self.logout() }
-                ],
-                textStyle: .bodySM,
-                actionableTextColor: .contentSecondary,
-                underlined: false
-            ).padding(16).frame(maxWidth: .infinity, alignment: .trailing)
+                .padding(.bottom, 16)
+            }
         }
-        .padding(EdgeInsets(top: 32, leading: 16, bottom: 32, trailing: 16))
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-
-    // MARK: - Methods
-    func logout() {
-        authenticationService.logout()
-            .sink(
-                receiveCompletion: { completion in
-                    switch completion {
-                    case .finished:
-                        if(self.localStorageService.hasSeenWelcomeScreen()) {
-                            self.appCoordinator.goToPage(.login)
-                        }else{
-                            self.appCoordinator.goToPage(.welcome)
-                        }                    case .failure(let error):
-                        print("‼️ ERROR: Problema ao realizar logout \(error)")
-                    }
-                },
-                receiveValue: { _ in
-                }
+    
+    init(viewModel: RankScreenViewModel? = nil) {
+        if let viewModel = viewModel {
+            _viewModel = StateObject(wrappedValue: viewModel)
+        } else {
+            _viewModel = StateObject(
+                wrappedValue:
+                    DependencyContainer.shared.container.resolve(
+                        RankScreenViewModel.self
+                    )!
             )
-            .store(in: &viewModel.cancellables)
-    }
-    // MARK: - Init
-    init() {
-        _viewModel = StateObject(
-            wrappedValue:
-                DependencyContainer.shared.container.resolve(
-                    ProfileScreenViewModel.self
-                )!
-        )
-        
+        }
     }
 }
 
 // MARK: - Preview
 
-struct ProfileScreenView_Previews: PreviewProvider {
+class MockRankScreenViewModel: RankScreenViewModel {
+    override init() {
+        super.init()
+        
+        self.ranking = [
+            RankingItem(id: "1", nickname: "João Pereira", pontuacao: 14000, rankName: "Diamante", position: 1),
+            RankingItem(id: "2", nickname: "Maria Clara", pontuacao: 12000, rankName: "Ouro", position: 2),
+            RankingItem(id: "3", nickname: "Italo Teofilo Filho", pontuacao: 10500, rankName: "Madeira", position: 3),
+            RankingItem(id: "4", nickname: "Rafael Costa", pontuacao: 9000, rankName: "Bronze", position: 4),
+            RankingItem(id: "5", nickname: "João Rodrigues", pontuacao: 8500, rankName: "Bronze", position: 5),
+            RankingItem(id: "6", nickname: "Diana Rodrigues", pontuacao: 7500, rankName: "Madeira", position: 6),
+            RankingItem(id: "7", nickname: "Santiago Santos", pontuacao: 5000, rankName: "Madeira", position: 7),
+            RankingItem(id: "8", nickname: "Alfredo Martins", pontuacao: 2500, rankName: "Madeira", position: 8),
+            RankingItem(id: "9", nickname: "Joana Farias", pontuacao: 900, rankName: "Madeira", position: 9)
+        ]
+        
+        self.myItem = ranking.first(where: { $0.nickname == "Italo Teofilo Filho" })
+    }
+}
+
+struct RankScreenView_Previews: PreviewProvider {
     static var previews: some View {
-        return ProfileScreenView()
+        RankScreenView(viewModel: MockRankScreenViewModel())
             .environmentObject(Theme())
-            .environmentObject(
-                DependencyContainer.shared.container.resolve(
-                    AppCoordinatorService.self
-                )!
-            )
+            .environmentObject(DependencyContainer.shared.container.resolve(AppCoordinatorService.self)!)
     }
 }

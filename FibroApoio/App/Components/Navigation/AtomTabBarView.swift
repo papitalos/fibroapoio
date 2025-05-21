@@ -37,7 +37,6 @@ struct AtomTabBarView: View {
             }
         }
         .padding(12)
-        .padding(.bottom, 8)
         .background(Color.white)
         .shadow(color: .gray.opacity(0.05) ,radius: 3, x: 0, y: -8)
     }

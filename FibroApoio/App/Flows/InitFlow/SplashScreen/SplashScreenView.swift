@@ -4,52 +4,48 @@
 //
 //  Created by Italo Teofilo Filho on 15/03/2025.
 //
-// SplashScreenView.swift
 import SwiftUI
 
 struct SplashScreenView: View {
-    //MARK: - Properties
+    //MARK: - Theme & ViewModel
     @Service var theme: Theme
     @StateObject var viewModel: SplashScreenViewModel
-    @Service var appCoordinator: AppCoordinatorService
 
-    //Estado para animações
-    @State var duration = 2.0
-    @State private var angle = 0.0
-    @State private var opacity = 1.0
+    //MARK: - Animation
+    @State private var angle: Double = 0
 
     //MARK: - Body
     var body: some View {
         VStack {
             Image("Logo")
-                .scaleEffect(1.2)
-                .rotationEffect(Angle(degrees: angle))
-                .opacity(opacity)
+                .resizable()
+                .frame(width: 120, height: 120)
+                .rotationEffect(.degrees(angle))
                 .onAppear {
-                    startRotationAnimation()
+                    startInfiniteRotation()
                 }
+
             Text("FibroApoio")
                 .title(theme)
-                .scaleEffect(1.2)
-                .opacity(opacity)
+                .padding(.top, 12)
         }
-        .opacity(opacity)        
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(theme.colors.surfaceGround)
     }
 
-    //MARK: - Methods
-    func startRotationAnimation() {
-        withAnimation(
-            .easeIn(duration: 1.0)
-                .repeatForever(autoreverses: false)
-        ) {
-            self.angle = 360.0
+    //MARK: - Rotation
+    func startInfiniteRotation() {
+        withAnimation(Animation.linear(duration: 3).repeatForever(autoreverses: false)) {
+            angle = 360
         }
     }
-    
+
+    //MARK: - Init
     init() {
         _viewModel = StateObject(wrappedValue: DependencyContainer.shared.container.resolve(SplashScreenViewModel.self)!)
     }
 }
+
 
 //MARK: - Preview
 struct SplashScreenView_Previews: PreviewProvider {

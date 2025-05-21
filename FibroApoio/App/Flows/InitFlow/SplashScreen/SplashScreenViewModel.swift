@@ -1,89 +1,75 @@
-//
-//  SplashScreenViewModel.swift
-//  FibroApoio
-//
-//  Created by Italo Teofilo Filho on 21/03/2025.
-//
-
-import Firebase
-import FirebaseAuth
-import FirebaseFirestore
 import SwiftUI
 import Combine
+import FirebaseAuth
 
 class SplashScreenViewModel: ObservableObject {
     @Published var isLoading: Bool = true
 
     @Service var appCoordinator: AppCoordinatorService
-    @Service var localStorageService: LocalStorageService
+    @Service var authenticationService: AuthenticationService
     @Service var userService: UserService
+    @Service var gamificationService: GamificationService
+    @Service var localStorageService: LocalStorageService
 
-    private var authStateHandle: AuthStateDidChangeListenerHandle?
-    private var cancellables: Set<AnyCancellable> = []
+    private var cancellables = Set<AnyCancellable>()
 
-    init() { checkCurrentUser() }
-
-    func checkCurrentUser() {
-        authStateHandle = Auth.auth().addStateDidChangeListener { [weak self] auth, user in
-            guard let self = self else { return }
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                if user != nil {
-                    Task {
-                        await self.fetchUserData()
-                    }
-                } else {
-                    self.isLoading = false
-                    if(self.localStorageService.hasSeenWelcomeScreen()) {
-                        self.appCoordinator.goToPage(.register)
-                    }else{
-                        self.appCoordinator.goToPage(.welcome)
-                    }
-                }
-            }
+    //MARK: - Load
+    init() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.checkUserState()
         }
     }
+
+    private func checkUserState() {
+        if authenticationService.isUserLoggedIn() {
+            loadUserAndContinue()
+        } else {
+            goToInitialPage()
+        }
+    }
+
+    private func goToInitialPage() {
+        isLoading = false
+        if localStorageService.hasSeenWelcomeScreen() {
+            appCoordinator.goToPage(.register)
+        } else {
+            appCoordinator.goToPage(.welcome)
+        }
+    }
+
+    private func loadUserAndContinue() {
+        userService.loadUser()
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { completion in
+                self.isLoading = false
+                if case .failure(let error) = completion {
+                    print("‼️ Falha ao carregar usuário: \(error.localizedDescription)")
+                    self.goToInitialPage()
+                }
+            }, receiveValue: {
+                self.postLoadActions()
+            })
+            .store(in: &cancellables)
+    }
+
     
-    @MainActor
-        func fetchUserData() async {
-            do {
-                _ = try await withCheckedThrowingContinuation {  (continuation: CheckedContinuation<User?, Error>)  in
-                    userService.fetchUser()
-                        .sink(
-                            receiveCompletion: { completion in
-                                switch completion {
-                                case .finished:
-                                    break
-                                case .failure(let error):
-                                    continuation.resume(throwing: error)
-                                }
-                            },
-                            receiveValue: { user in
-                                print("2 \(String(describing: user))")
+    //MARK: - Post Load
+    private func postLoadActions() {
+        // garante streak vazio do dia
+        gamificationService.ensureEmptyStreakForToday()
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { completion in
+                self.isLoading = false
 
-                                self.appCoordinator.loadUser(user: user)
-
-                                continuation.resume(returning: user)
-                            }
-                        )
-                        .store(in: &cancellables)
+                if case let .failure(error) = completion {
+                    print("🟥 Erro ao garantir streak vazio: \(error)")
                 }
 
-                isLoading = false
-                appCoordinator.goToPage(.dashboard)
-            } catch {
-                isLoading = false
-                if(localStorageService.hasSeenWelcomeScreen()) {
-                    appCoordinator.goToPage(.register)
-                }else{
-                    appCoordinator.goToPage(.welcome)
-                }
-            }
-        }
+                self.appCoordinator.goToPage(.dashboard)
+            }, receiveValue: {
+                print("✅ Empty streak verificado ou criado")
+            })
+            .store(in: &cancellables)
 
-    deinit {
-        if let handle = authStateHandle {
-            Auth.auth().removeStateDidChangeListener(handle)
-        }
     }
 }

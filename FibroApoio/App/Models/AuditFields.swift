@@ -10,6 +10,7 @@ import FirebaseFirestore
 import Foundation
 
 protocol AuditFields: Codable {
+    var id: String? { get set }
     var createdAt: Timestamp? { get set }
     var updatedAt: Timestamp? { get set }
     var deletedAt: Timestamp? { get set }
@@ -18,6 +19,14 @@ protocol AuditFields: Codable {
 extension AuditFields {
     var isSoftDeleted: Bool {
         return deletedAt != nil
+    }
+    
+    func toFirestore() -> [String: Any] {
+            let encoder = Firestore.Encoder()
+            guard let data = try? encoder.encode(self) else {
+                return [:]
+            }
+            return data
     }
 }
 

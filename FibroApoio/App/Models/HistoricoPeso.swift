@@ -1,11 +1,17 @@
+//
+//  HistoricoPeso.swift
+//  FibroApoio
+//
+//  Created by Italo Teofilo Filho on 22/04/2025.
+//
+
 import FirebaseFirestore
-import FirebaseFirestoreSwift
 
 struct HistoricoPeso: Codable, AuditFields {
     @DocumentID var id: String?
     var data_registro: Timestamp?
-    var id_usuario: DocumentReference?
-    var peso_kg: Double? // ou Int, se quiser manter como inteiro (mas Double é mais flexível)
+    var id_usuario: String?
+    var peso_kg: Double?
 
     // Campos de auditoria
     var createdAt: Timestamp?
