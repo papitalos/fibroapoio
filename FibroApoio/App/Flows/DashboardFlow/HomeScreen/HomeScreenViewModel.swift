@@ -141,32 +141,7 @@ class HomeScreenViewModel: ObservableObject {
                 .prefix(2)
                 .map { $0 }
     }
-    
-    //MARK: - Rank
-    private func evaluateUserRankIfSunday() {
-        let isSunday = Calendar.current.component(.weekday, from: Date()) == 1
-        guard isSunday else {
-            print("⏭️ Hoje não é domingo. Nenhuma verificação de rank será feita.")
-            return
-        }
 
-        gamificationService.evaluateUserRankForCurrentUser()
-            .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { _ in }, receiveValue: { result in
-                switch result {
-                case .promote:
-                    print("🚀 Usuário promovido de rank!")
-                    self.rankActivity = "promote"
-                case .demote:
-                    print("📉 Usuário rebaixado de rank.")
-                    self.rankActivity = "demote"
-                case .none:
-                    print("🔁 Rank mantido.")
-                    self.rankActivity = nil
-                }
-            })
-            .store(in: &cancellables)
-    }
 
     //MARK: - Helpers
 

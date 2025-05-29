@@ -133,6 +133,33 @@ class GamificationService {
     }
 
     //MARK: - Rank Handle
+    func evaluateRankIfFirstLoginOfWeek() -> AnyPublisher<RankChangeResult?, Error> {
+        let calendar = Calendar.current
+        let now = Date()
+        
+        // Encontra o último domingo
+        let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: now))!
+        
+        return self.userService.findDocumentsByDate(collection: "checkin", from: startOfWeek)
+            .flatMap { (checkins: [Checkin]) -> AnyPublisher<RankChangeResult?, Error> in
+                let hasEntryThisWeek = checkins.contains { $0.status_streak == -1 }
+                
+                if hasEntryThisWeek {
+                    print("🔁 Usuário já entrou essa semana. Rank não será avaliado.")
+                    return Just(nil)
+                        .setFailureType(to: Error.self)
+                        .eraseToAnyPublisher()
+                } else {
+                    print("📆 Primeira entrada da semana. Avaliando rank...")
+                    return self.evaluateUserRankForCurrentUser()
+                        .map { Optional($0) }
+                        .eraseToAnyPublisher()
+                }
+            }
+            .eraseToAnyPublisher()
+
+    }
+    
     func evaluateUserRankForCurrentUser() -> AnyPublisher<RankChangeResult, Error> {
           guard var user = userService.currentUser, let rankRef = user.id_rank else {
               return Fail(error: NSError(

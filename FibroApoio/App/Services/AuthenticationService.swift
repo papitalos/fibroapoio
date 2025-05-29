@@ -160,15 +160,41 @@ class AuthenticationService {
                                 self.localStorageService.saveUser(user: user)
 
                                 self.userService.loadUser()
-                                    .sink(receiveCompletion: { _ in }, receiveValue: {
+                                    .flatMap { _ in
+                                        self.gamificationService.ensureEmptyStreakForToday()
+                                    }
+                                    .flatMap { _ in
+                                        self.gamificationService.evaluateRankIfFirstLoginOfWeek()
+                                            .catch { error -> AnyPublisher<GamificationService.RankChangeResult?, Never> in
+                                                print("❌ Erro ao avaliar rank semanal: \(error.localizedDescription)")
+                                                return Just(nil).eraseToAnyPublisher()
+                                            }
+                                    }
+                                    .receive(on: DispatchQueue.main)
+                                    .sink(receiveCompletion: { completion in
+                                        // Aqui trata erro de ensureEmptyStreakForToday ou loadUser
+                                        if case let .failure(error) = completion {
+                                            print("🟥 Erro ao carregar usuário ou garantir streak: \(error)")
+                                        }
+                                        // Continua mesmo com falhas
                                         if user.altura_cm != 0 && user.peso_kg != 0 && user.genero != nil && user.data_nascimento != nil {
                                             self.appCoordinatorService.goToPage(.dashboard)
                                         } else {
                                             self.appCoordinatorService.goToPage(.completeRegister)
                                         }
                                         promise(.success(()))
+                                    }, receiveValue: { result in
+                                        switch result {
+                                        case .promote:
+                                            print("🚀 Promoção de rank após login semanal!")
+                                        case .demote:
+                                            print("📉 Rebaixamento de rank após login semanal!")
+                                        case .none?, nil:
+                                            print("🔁 Nenhuma mudança de rank após login.")
+                                        }
                                     })
                                     .store(in: &self.cancellables)
+
 
                             }
                         }

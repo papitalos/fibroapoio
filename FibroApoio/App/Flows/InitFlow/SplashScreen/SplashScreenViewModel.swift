@@ -55,8 +55,14 @@ class SplashScreenViewModel: ObservableObject {
     
     //MARK: - Post Load
     private func postLoadActions() {
-        // garante streak vazio do dia
         gamificationService.ensureEmptyStreakForToday()
+            .flatMap { _ in
+                self.gamificationService.evaluateRankIfFirstLoginOfWeek()
+                    .catch { error -> AnyPublisher<GamificationService.RankChangeResult?, Never> in
+                        print("❌ Erro ao avaliar rank semanal: \(error.localizedDescription)")
+                        return Just(nil).eraseToAnyPublisher()
+                    }
+            }
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { completion in
                 self.isLoading = false
@@ -66,10 +72,17 @@ class SplashScreenViewModel: ObservableObject {
                 }
 
                 self.appCoordinator.goToPage(.dashboard)
-            }, receiveValue: {
-                print("✅ Empty streak verificado ou criado")
+            }, receiveValue: { result in
+                switch result {
+                case .promote:
+                    print("🚀 Promoção de rank após entrada semanal!")
+                case .demote:
+                    print("📉 Rebaixamento de rank após entrada semanal!")
+                case .none?, nil:
+                    print("🔁 Nenhuma mudança de rank.")
+                }
             })
             .store(in: &cancellables)
-
     }
+
 }
